@@ -1,0 +1,1078 @@
+<!DOCTYPE html>
+<html 	xmlns:th="http://www.thymeleaf.org"		
+        xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+        layout:decorate="~{layouts/layout}">
+
+<th:block layout:fragment="script">
+	<script th:inline="javascript">
+	
+	/* window.onload = function() {
+	      // 이미지가 로드된 후에 실행될 코드
+	      displayDefaultImage();
+	  }; */
+	  
+	  $(document).ready(function(){
+	  	console.log("에레 메서지 출력 실행");
+	  	var errorMessage = /*[[${errorMessage}]]*/ '';
+	    if(errorMessage != null){
+	      alert(errorMessage);
+	    }
+	    
+	    bindDomEvent();
+	    initializeDeleteBtn();
+	  });
+	  
+	  function bindDomEvent() {
+		    console.log("bindDomEvent function is called!");
+		    $(".resume-file-input").on("change", function () {
+		        /* var fileName = $(this).val().split("\\").pop();  // 이미지 파일명
+		        var fileExt = fileName.substring(fileName.lastIndexOf(".") + 1); // 확장자 추출
+		        fileExt = fileExt.toLowerCase(); // 소문자 변환 */
+
+		        // 서버에 이미지 파일 여부 확인 요청
+		        var formData = new FormData();
+		        formData.append('file', this.files[0]);
+
+		        $.ajax({
+		            url: '/checkImage',
+		            type: 'POST',
+		            data: formData,
+		            processData: false,
+		            contentType: false,
+		            success: function (response) {
+		                if (response.isImage) {
+		                    // 이미지 파일일 경우 프로필 이미지 변경
+		                    displaySelectedImage(response.encodedImage);
+		                } else {
+		                	displayDefaultImage();
+		                    alert("이미지 파일만 등록이 가능합니다.");
+		                }
+		            },
+		            error: function () {
+		                alert("서버 오류가 발생했습니다.");
+		            }
+		        });
+		    });
+		}
+
+		// 이미지 파일이면 프로필 이미지 변경
+		function displaySelectedImage(encodedImage) {
+		    const image = document.getElementById("resumeImage");
+		    const fileInput = document.getElementById("resumeImageInput");
+
+		    const selectedFile = fileInput.files[0];
+                                                                                                                                                          
+		    if (selectedFile) {
+		        // 이미지 파일의 Base64 데이터를 이용하여 이미지 변경
+		        image.src = 'data:' + selectedFile.type + ';base64,' + encodedImage;
+		    }
+		}
+		
+		// 이미지 파일이 아닐 경우 기본 이미지 유지
+		function displayDefaultImage() {
+		    const image = document.getElementById("resumeImage");
+		    const defaultImageSrc = image.getAttribute("data-default-src");
+		
+		 // 일정 시간이 지난 후에 이미지를 표시
+		    setTimeout(function() {
+		        image.src = defaultImageSrc;
+		    }, 100); // 예: 100 밀리초 후에 실행
+		}
+
+
+		var memberPicture = /*[[${memberPicture}]]*/ '';
+		
+		function initializeDeleteBtn() {
+			console.log("삭제버튼 초기화");
+			var uniDetail = document.querySelectorAll('.uni-detail-div-block');
+			var gradDetail = document.querySelectorAll('.grad-detail-div-block');
+			var careerDetail = document.querySelectorAll('.career-detail-div-block');
+			var languageDetail = document.querySelectorAll('.language-detail-div-block');
+			var awardsDetail = document.querySelectorAll('.awards-detail-div-block');
+			var foreignDetail = document.querySelectorAll('.foreign-detail-div-block');
+			var activityDetail = document.querySelectorAll('.activity-detail-div-block');
+			var eduDetail = document.querySelectorAll('.edu-detail-div-block');
+			var preDetail = document.querySelectorAll('.preferent-detail-div-block');
+			
+			if(uniDetail.length >= 2) {
+				var deleteBtn = document.querySelector('#uni-delete-button');
+				deleteBtn.style.display = "block";
+			} 
+			
+			if(gradDetail.length >= 2) {
+				var deleteBtn = document.querySelector('#grad-delete-button');
+				deleteBtn.style.display = "block";
+			} 
+			
+			if(careerDetail.length >= 2) {
+				var deleteBtn = document.querySelector('#career-delete-button');
+				deleteBtn.style.display = "block";
+			} 
+			
+			if(languageDetail.length >= 2) {
+				var deleteBtn = document.querySelector('#language-delete-button');
+				deleteBtn.style.display = "block";
+			} 
+			
+			if(awardsDetail.length >= 2) {
+				var deleteBtn = document.querySelector('#grad-delete-button');
+				deleteBtn.style.display = "block";
+			} 
+			if(foreignDetail.length >= 2) {
+				var deleteBtn = document.querySelector('#foreign-delete-button');
+				deleteBtn.style.display = "block"; 
+			} 
+			
+			if(activityDetail.length >= 2) {
+				var deleteBtn = document.querySelector('#activity-delete-button');
+				deleteBtn.style.display = "block";
+			} 
+			
+			if(eduDetail.length >= 2) {
+				var deleteBtn = document.querySelector('#edu-delete-button');
+				deleteBtn.style.display = "block";
+			} 
+			
+			if(preDetail.length >= 2) {
+				var deleteBtn = document.querySelector('#preferent-delete-button');
+				deleteBtn.style.display = "block";
+			}
+			
+		}
+		
+		function addResumeList(clickedAddBtn) {
+			
+			  // 추가 버튼의 id 속성 추출
+			  var AddBtnId = $(clickedAddBtn).attr('id');
+
+			  // 이력서 항목을 구분할 문자 추출
+			  var prefix = AddBtnId.substring(0, AddBtnId.indexOf('-'));
+			  
+			  // 추가할 행 클래스 구분자용 문자열 생성
+			  var divClassSelector = '.' + prefix + '-detail-div-block';
+			  
+			  // 취소 버튼 ID 구분자용 문자열 생성
+			  var deleteBtnIdSelector = '#' + prefix + '-delete-button';
+			  
+			  // 추가할 행 찾기
+			  var resumeListDiv = document.querySelector(divClassSelector);
+			  
+			  // 삭제 버튼 찾기
+			  var deleteBtn = document.querySelector(deleteBtnIdSelector);
+			  
+			  // 행 복사
+			  var clonedDiv = resumeListDiv.cloneNode(true);
+
+			  var inputElements = clonedDiv.querySelectorAll('input');
+			  inputElements.forEach(function(inputElement) {
+			      inputElement.value = ''; // 또는 다른 초기값으로 설정
+			  });
+			  
+			  var selectElements = clonedDiv.querySelectorAll('select');
+			  selectElements.forEach(function(selectElement) {
+			      selectElement.selectedIndex = 0; // 또는 다른 초기값으로 설정
+			  });
+			  
+			  // 자식 요소 중 textarea 태그들을 찾아 값을 초기화
+			  var textareaElements = clonedDiv.querySelectorAll('textarea');
+			  textareaElements.forEach(function(textareaElement) {
+			      textareaElement.value = ''; // 또는 다른 초기값으로 설정
+			  });
+
+			  // 자식 요소 중 radio 태그들을 찾아 모두 선택을 해제
+			  var radioElements = clonedDiv.querySelectorAll('input[type="radio"]');
+			  radioElements.forEach(function(radioElement) {
+				  radioElement.name = 'radio' + resumeListDiv.length + 1; // 새로운 그룹으로 변경
+			      radioElement.checked = false;
+			  });
+			  
+			  
+			  // 리스트를 뒤에 추가해줄 행 찾기
+			  var lastList = document.querySelector(divClassSelector + ':last-child');
+			  var allList = document.querySelectorAll(divClassSelector);
+			  
+			  var listManageDiv = clickedAddBtn.closest('.list-manage-div-block');
+				
+				// 삭제할 행 찾기
+			  //var deleteRow = listManageDiv.previousElementSibling;
+			  var addRow = resumeListDiv.parentNode.querySelector(divClassSelector + ':last-child');
+				
+			  console.log("addRow:", addRow);
+			  // 행 추가
+			  addRow.parentNode.appendChild(clonedDiv);
+			  
+			  var fields = clonedDiv.querySelectorAll('[id*=' + prefix + ']');
+			  
+			  var numberOfList = document.querySelectorAll(divClassSelector).length;
+			  console.log("fields:", fields);
+			  fields.forEach(function(field) {
+				    // 현재 속성 값을 가져옴
+				    var currentAttributeValue = field.getAttribute('name');
+				    
+				    // 새로운 인덱스로 속성 값을 수정
+				    var newAttributeValue = currentAttributeValue.replace('[0]', '[' + (numberOfList - 1) + ']');
+				    
+				    // 수정된 속성을 적용
+				    field.setAttribute('name', newAttributeValue);
+				    
+				    if(field.type == 'radio' && field.id === 'preferent-veterans-first-radio') {
+				    	field.setAttribute('name', 'resumePreferentFormDto[' + (numberOfList - 1) + '].veteransDivison');
+						field.value="대상"				    	
+				    } else if (field.type == 'radio' && field.id === 'preferent-veterans-second-radio') {
+				    	field.setAttribute('name', 'resumePreferentFormDto[' + (numberOfList - 1) + '].veteransDivison');
+						field.value="비대상"	
+				    } else if (field.type == 'radio' && field.id === 'preferent-obstacle-first-radio') {
+				    	field.setAttribute('name', 'resumePreferentFormDto[' + (numberOfList - 1) + '].obstacleDivsion');
+				    	field.value="대상"
+				    } else if (field.type == 'radio' && field.id === 'preferent-obstacle-second-radio') {
+				    	field.setAttribute('name', 'resumePreferentFormDto[' + (numberOfList - 1) + '].obstacleDivsion');
+				    	field.value="비대상"
+				    } else if (field.type == 'radio' && field.id === 'preferent-military-first-radio') {
+				    	field.setAttribute('name', 'resumePreferentFormDto[' + (numberOfList - 1) + '].militaryDivison');
+				    	field.value="군필"
+				    } else if (field.type == 'radio' && field.id === 'preferent-military-second-radio') {
+				    	field.setAttribute('name', 'resumePreferentFormDto[' + (numberOfList - 1) + '].militaryDivison');
+				    	field.value="미필"
+				    } else if (field.type == 'radio' && field.id === 'preferent-military-third-radio') {
+				    	field.setAttribute('name', 'resumePreferentFormDto[' + (numberOfList - 1) + '].militaryDivison');
+				    	field.value="면제"
+				    }
+				});
+			  
+			  // 삭제 버튼 활성화
+			  deleteBtn.style.display = "block";
+			  
+			}
+		
+		function deleteResumeList(clickedDeleteBtn) {
+			
+			var DelBtnId = $(clickedDeleteBtn).attr('id');
+			
+			// 이력서 항목을 구분할 문자 추출
+			var prefix = DelBtnId.substring(0, DelBtnId.indexOf('-'));
+			  
+			// 삭제할 행 클래스 구분자용 문자열 생성
+			var divClassSelector = '.' + prefix + '-detail-div-block';
+				
+			// 삭제 버튼의 부모 요소 찾기
+			var listManageDiv = clickedDeleteBtn.closest('.list-manage-div-block');
+			
+			// 삭제할 행 찾기
+			//var deleteRow = listManageDiv.previousElementSibling;
+			var deleteRow = listManageDiv.parentNode.querySelector(divClassSelector + ':last-child');
+			//var SecondPreviousRow = DeleteRow.previousElementSibling;
+			
+			
+			console.log(deleteRow);
+			// 행 삭제
+			deleteRow.remove();
+			
+			// 행이 1개인 경우 삭제 버튼 비활성화
+			var resumeListDiv = document.querySelectorAll(divClassSelector);
+			if(resumeListDiv.length == 1) {
+				clickedDeleteBtn.style.display = "none";
+			}
+
+		}
+
+	</script>
+
+</th:block>
+
+<head>
+<div layout:fragment="head">
+    <meta charset="utf-8" />
+</div>
+</head>
+
+<div layout:fragment="content" id="content-container">
+ <div id="features" class="section">
+        <div class="w-layout-blockcontainer user-resume-container w-container">
+            <div class="user-resume-div-block">
+                <div class="user-resume-form-block w-form">
+                    <form id="email-form" name="email-form" method="post" th:object="${resumeCombinedFormDto}" enctype="multipart/form-data">
+                        <div class="user-resume-heading"><input type="text" th:field="*{resumeFormDto.resumeName}" class="resume-name-input w-input"
+                                maxlength="256" name="field-8" placeholder="이력서" id="field-8"
+                                /></div>
+                        <input type="hidden" th:field="*{resumeFormDto.Id}"/>
+                        <div class="user-resume-info-div-block">
+                            <div class="user-info-div-block">
+                                <div class="user-resume-image-div-block"><img id="resumeImage"
+     									th:src="${resumeCombinedFormDto.resumeFormDto.resumePictureUrl != null and resumeCombinedFormDto.resumeFormDto.resumePictureUrl != ''} ? ${resumeCombinedFormDto.resumeFormDto.resumePictureUrl} : @{/static/images/resume_none_image.png}"
+     									loading="lazy" alt="" class="user-resume-image"
+     									th:data-default-src="@{/static/images/resume_none_image.png}" />
+                                        <label class="user-resume-image-button w-button" th:onclick="resumeImageInput.click()">이미지 업로드</label>
+                                        <input type="file" name="resumeImgFile" id="resumeImageInput" class="resume-file-input" style="display: none;" th:onchange="displaySelectedImage()"></div>
+                                <div class="user-detail-div-block">
+                                    <div class="user-detail-first-column-div-block">
+                                        <div class="user-name-div-block">
+                                            <div class="user-name-text-block">이름</div>
+                                        </div>
+                                        <div class="user-name-input-div-block"><input type="text" th:field="*{resumeFormDto.memberName}"
+                                              class="user-name-text-field w-input" maxlength="256" name="field-5"
+                                                placeholder="" id="field-5" /></div>
+                                        <div class="user-birth-div-block">
+                                            <div class="user-birth-text-block">생년월일</div>
+                                        </div>
+                                        <div class="user-birth-input-div-block"><select id="field-2" name="field-2" th:field="*{resumeFormDto.memberBirthYear}"
+                                                class="select-field w-select">
+                                                <option value="">-</option>
+                                                <option th:each="year : ${#numbers.sequence(2008, 1973)}" th:value="${year}" th:text="${year}"></option>
+                                            </select><select id="field-2" name="field-2" th:field="*{resumeFormDto.memberBirthMonth}"
+                                                class="month-select-field w-select">
+                                                <option value="">-</option>
+                                                <option th:each="month : ${#numbers.sequence(1, 12)}" th:value="${month}" th:text="${month}"></option>
+                                            </select><select id="field-2" name="field-2" th:field="*{resumeFormDto.memberBirthDay}"
+                                                class="day-select-field w-select">
+                                                <option value="">-</option>
+                                                <option th:each="day : ${#numbers.sequence(1, 31)}" th:value="${day}" th:text="${day}"></option>
+                                            </select></div>
+                                        <div class="user-gender-div-block">
+                                            <div class="text-block">성별</div>
+                                        </div>
+                                        <div class="user-gender-input-div-block"><select id="field-2" name="field-2" th:field="*{resumeFormDto.memberGender}"
+                                                class="user-gender-select-field w-select">
+                                                <option value="남자">남자</option>
+                                                <option value="여자">여자</option>
+                                            </select></div>
+                                    </div>
+                                    <div class="user-detail-second-column-div-block">
+                                        <div class="call-number-div-block">
+                                            <div class="call-number-text-block">전화번호</div>
+                                        </div>
+                                        <div class="call-number-input-div-block"><input type="tel" th:field="*{resumeFormDto.memberPhoneNumber}"
+                                                class="call-number-text-field w-input" maxlength="256" name="field-5"
+                                                placeholder="" id="field-5" /></div>
+                                        <div class="phone-number-div-block">
+                                            <div class="phone-number-text-block">휴대폰번호</div>
+                                        </div>
+                                        <div class="phone-number-input-div-block"><input type="tel" th:field="*{resumeFormDto.memberCellPhoneNumber}"
+                                                class="phone-number-text-field w-input" maxlength="256" name="field-5"
+                                                placeholder="" id="field-5" /></div>
+                                    </div>
+                                    <div class="user-detail-third-column-div-block">
+                                        <div class="email-div-block">
+                                            <div class="email-text-block">이메일</div>
+                                        </div>
+                                        <div class="email-input-div-block"><input type="email" th:field="*{resumeFormDto.memberEmail}"
+                                                class="email-text-field w-input" maxlength="256" name="field-5"
+                                                placeholder="" id="field-5" /></div>
+                                        <div class="sns-div-block">
+                                            <div class="sns-text-block">SNS</div>
+                                        </div>
+                                        <div class="sns-input-div-block"><input type="text" th:field="*{resumeFormDto.memberSns}"
+                                                class="sns-text-field w-input" maxlength="256" name="field-5"
+                                                placeholder="" id="field-5" /></div>
+                                    </div>
+                                    <div class="user-detail-fourth-column-div-block">
+                                        <div class="address-div-block">
+                                            <div class="address-text-block">주소</div>
+                                        </div>
+                                        <div class="address-input-div-block"><input type="text" th:field="*{resumeFormDto.memberAddress}"
+                                                class="address-text-field w-input" maxlength="256" name="field-5"
+                                                placeholder="" id="field-5" /></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="list-headinig">고등학교</div>
+                            <input type="hidden" th:field="*{resumeHighSchoolFormDto.id}">
+                            <div class="high-school-div-block">
+                                <div class="high-graduation-year-div-block">
+                                    <div class="high-graduation-year-text-block">졸업년도</div>
+                                </div>
+                                <div class="high-graduation-year-input-div-block"><select id="field-2" name="field-2" th:field="*{resumeHighSchoolFormDto.highSchoolGraduateYear}"
+                                        class="high-graduation-year-select-field w-select">
+                                        <option value="">-</option>
+                                        <option th:each="year : ${#numbers.sequence(2026, 1973)}" th:value="${year}" th:text="${year}"></option>
+                                    </select></div>
+                                <div class="high-school-name-div-block">
+                                    <div class="high-school-name-text-block">학교명</div>
+                                </div>
+                                <div class="high-school-input-div-block"><input type="text" th:field="*{resumeHighSchoolFormDto.highSchoolName}"
+                                        class="high-school-name-text-field w-input" maxlength="256" name="field-3"
+                                        placeholder="" id="field-3" /></div>
+                                <div class="high-school-graduation-division-div-block">
+                                    <div class="high-school-graduation-division-text-block">졸업구분</div>
+                                </div>
+                                <div class="high-school-graduation-division-input-div-block"><select id="field-2" th:field="*{resumeHighSchoolFormDto.highSchoolDivision}"
+                                        name="field-2"
+                                        class="high-school-graduation-division-select-field w-select">
+                                        <option value="">-</option>
+                                        <option value="졸업">졸업</option>
+                                        <option value="졸업예정">졸업예정</option>
+                                        <option value="재학중">재학중</option>
+                                    </select></div>
+                            </div>
+                            
+                            <div class="list-headinig">대학교</div>
+                            <div>
+                            <div class="uni-detail-div-block" th:each="resumeUniversityFormDto, iterStat : ${resumeCombinedFormDto.resumeUniversityFormDto}">
+                            	<input type="hidden" id="uni-id" th:field="*{resumeUniversityFormDto[__${iterStat.index}__].id}"/>
+                                <div class="uni-first-column-div-block">
+                                    <div class="uni-name-div-block">
+                                        <div class="uni-name-text-block">학교명</div>
+                                    </div>
+                                    <div class="uni-name-input-div-block"><input type="text" th:field="*{resumeUniversityFormDto[__${iterStat.index}__].uniName}"
+                                            class="uni-name-text-field w-input" maxlength="256" name="field"
+                                            placeholder="" id="uni-total-grades-field" /></div>
+                                    <div class="uni-grades-div-block">
+                                        <div class="uni-grades-text-block">학점</div>
+                                    </div>
+                                    <div class="uni-grades-input-div-block">
+                                        <div class="language-grade-input-div-block"><input type="text" th:field="*{resumeUniversityFormDto[__${iterStat.index}__].uniTotalGrade}"
+                                                class="uni-grades-text-field w-input" maxlength="256" name="field-4"
+                                                placeholder="" id="uni-max-grades-text-field" /></div>
+                                        <div class="uni-grades-input-text-block">/</div><select  id="uni-grades-select-field" th:field="*{resumeUniversityFormDto[__${iterStat.index}__].uniMaxGrade}"
+                                            name="field-2" class="uni-grades-select-field w-select">
+                                            <option value="">-</option>
+                                            <option value="4.0">4.0</option>
+                                            <option value="4.3">4.3</option>
+                                            <option value="4.5">4.5</option>
+                                            <option value="5.0">5.0</option>
+                                            <option value="7.0">7.0</option>
+                                            <option value="100">100</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="uni-second-column-div-block">
+                                    <div class="uni-duration-div-block">
+                                        <div class="uni-duration-text-block">기간</div>
+                                    </div>
+                                    <div class="uni-duration-input-div-block"><select id="uni-start-year-select-field" name="field-2" th:field="*{resumeUniversityFormDto[__${iterStat.index}__].uniDurationStartYear}"
+                                            class="uni-first-year-select-field w-select">
+                                            <option value="">-</option>
+                                           <option th:each="year : ${#numbers.sequence(2026, 1973)}" th:value="${year}" th:text="${year}"></option>
+                                        </select><select id="uni-start-month-select-field" name="field-2" th:field="*{resumeUniversityFormDto[__${iterStat.index}__].uniDurationStartMonth}"
+                                            class="uni-first-month-select-field w-select">
+                                            <option value="">-</option>
+                                            <option th:each="month : ${#numbers.sequence(1, 12)}" th:value="${month}" th:text="${month}"></option>
+                                        </select>
+                                        <div class="uni-duration-input-text-block">~</div><select id="uni-end-year-select-field" th:field="*{resumeUniversityFormDto[__${iterStat.index}__].uniDurationEndYear}"
+                                            name="field-2" 
+                                            class="uni-second-year-select-field w-select">
+                                            <option value="">-</option>
+                                            <option th:each="year : ${#numbers.sequence(2026, 1973)}" th:value="${year}" th:text="${year}"></option>
+                                        </select><select id="uni-end-month-select-field" name="field-2" th:field="*{resumeUniversityFormDto[__${iterStat.index}__].uniDurationEndMonth}"
+                                            class="uni-second-month-select-field w-select">
+                                            <option value="">-</option>
+                                            <option th:each="month : ${#numbers.sequence(1, 12)}" th:value="${month}" th:text="${month}"></option>
+                                        </select>
+                                    </div>
+                                    <div class="uni-graduation-division-div-block">
+                                        <div class="uni-graduation-division-text-block">졸업구분</div>
+                                    </div>
+                                    <div class="uni-graduation-division-input-div-block"><select id="uni-graduation-division-select-field" th:field="*{resumeUniversityFormDto[__${iterStat.index}__].uniGraduateDivison}"
+                                            name="field-2"
+                                            class="uni-graduation-division-select-field w-select">
+                                            <option value="">-</option>
+                                            <option value="졸업">졸업</option>
+                                            <option value="졸업예정">졸업예정</option>
+                                            <option value="재학중">재학중</option>
+                                            <option value="중퇴">중퇴</option>
+                                            <option value="수료">수료</option>
+                                            <option value="휴학">휴학</option>
+                                        </select></div>
+                                </div>
+                                <div class="uni-third-colmun-div-block">
+                                    <div class="uni-major-name-div-block">
+                                        <div class="uni-major-name-text-block">전공명</div>
+                                    </div>
+                                    <div class="uni-major-name-input-div-block"><input type="text" th:field="*{resumeUniversityFormDto[__${iterStat.index}__].uniMajor}"
+                                            class="uni-major-name-text-field w-input" maxlength="256" name="field-3"
+                                            placeholder="" id="uni-major-name-text-field"/></div>
+                                    <div class="uni-division-div-block">
+                                        <div class="uni-division-text-block">분류</div>
+                                    </div>
+                                    <div class="uni-division-input-div-block"><select id="uni-division-select-field" name="field-2" th:field="*{resumeUniversityFormDto[__${iterStat.index}__].uniDivision}"
+                                            class="uni-division-select-field w-select">
+                                            <option value="">-</option>
+                                            <option value="2년제">2년제</option>
+                                            <option value="3년제">3년제</option>
+                                            <option value="4년제">4년제</option>
+                                        </select></div>
+                                </div>
+                            </div>
+                            </div>
+                             <div class="list-manage-div-block"><label id="uni-add-button" class="list-add-button w-button" onclick="addResumeList(this)"></label><label
+                                        id="uni-delete-button" onclick="deleteResumeList(this)" class="list-delete-button w-button"></label></div>
+                                        
+                            <div class="list-headinig">대학원</div>
+                            <div>
+                            <div class="grad-detail-div-block" th:each="resumeGraduateSchoolFormDto, iterStat : ${resumeCombinedFormDto.resumeGraduateSchoolFormDto}">
+                            	<input type="hidden" id="grad-id" th:field="*{resumeGraduateSchoolFormDto[__${iterStat.index}__].id}"/>
+                                <div class="uni-first-column-div-block">
+                                    <div class="uni-name-div-block">
+                                        <div class="uni-name-text-block">학교명</div>
+                                    </div>
+                                    <div class="uni-name-input-div-block"><input type="text" th:field="*{resumeGraduateSchoolFormDto[__${iterStat.index}__].gradSchoolName}"
+                                            class="uni-name-text-field w-input" maxlength="256" name="field-3"
+                                            placeholder="" id="grad-total-grades-text-field"/></div>
+                                    <div class="uni-grades-div-block">
+                                        <div class="uni-grades-text-block">학점</div>
+                                    </div>
+                                    <div class="uni-grades-input-div-block">
+                                        <div class="language-grade-input-div-block"><input type="text" th:field="*{resumeGraduateSchoolFormDto[__${iterStat.index}__].gradTotalGrade}"
+                                                class="uni-grades-text-field w-input" maxlength="256" name="field-4"
+                                                placeholder="" id="grad-max-grads-text-field"  /></div>
+                                        <div class="uni-grades-input-text-block">/</div><select id="grad-grads-select-field" th:field="*{resumeGraduateSchoolFormDto[__${iterStat.index}__].gradMaxGrade}"
+                                            name="field-2" class="uni-grades-select-field w-select">
+                                            <option value="">-</option>
+                                            <option value="4.0">4.0</option>
+                                            <option value="4.3">4.3</option>
+                                            <option value="4.5">4.5</option>
+                                            <option value="5.0">5.0</option>
+                                            <option value="7.0">7.0</option>
+                                            <option value="100">100</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="uni-second-column-div-block">
+                                    <div class="uni-duration-div-block">
+                                        <div class="uni-duration-text-block">기간</div>
+                                    </div>
+                                    <div class="uni-duration-input-div-block"><select id="grad-start-year-select-field" name="field-2" th:field="*{resumeGraduateSchoolFormDto[__${iterStat.index}__].gradDurationStartYear}"
+                                            class="uni-first-year-select-field w-select">
+                                            <option value="">-</option>
+                                            <option th:each="year : ${#numbers.sequence(2026, 1973)}" th:value="${year}" th:text="${year}"></option>
+                                        </select><select id="grad-start-month-select-field" name="field-2" th:field="*{resumeGraduateSchoolFormDto[__${iterStat.index}__].gradDurationStartMonth}"
+                                            class="uni-first-month-select-field w-select">
+                                            <option value="">-</option>
+                                            <option th:each="month : ${#numbers.sequence(1, 12)}" th:value="${month}" th:text="${month}"></option>
+                                        </select>
+                                        <div class="uni-duration-input-text-block">~</div><select id="grad-end-year-select-field" th:field="*{resumeGraduateSchoolFormDto[__${iterStat.index}__].gradDurationEndYear}"
+                                            name="field-2"
+                                            class="uni-second-year-select-field w-select">
+                                            <option value="">-</option>
+                                            <option th:each="year : ${#numbers.sequence(2026, 1973)}" th:value="${year}" th:text="${year}"></option>
+                                        </select><select id="grad-end-month-select-field" name="field-2" th:field="*{resumeGraduateSchoolFormDto[__${iterStat.index}__].gradDurationEndMonth}"
+                                            class="uni-second-month-select-field w-select">
+                                            <option value="">-</option>
+                                            <option th:each="month : ${#numbers.sequence(1, 12)}" th:value="${month}" th:text="${month}"></option>
+                                        </select>
+                                    </div>
+                                    <div class="uni-graduation-division-div-block">
+                                        <div class="uni-graduation-division-text-block">졸업구분</div>
+                                    </div>
+                                    <div class="uni-graduation-division-input-div-block"><select id="grad-graduation-division-select-field" th:field="*{resumeGraduateSchoolFormDto[__${iterStat.index}__].gradSchoolGraduateDivison}"
+                                            name="field-2"
+                                            class="uni-graduation-division-select-field w-select">
+                                            <option value="">-</option>
+                                            <option value="졸업">졸업</option>
+                                            <option value="졸업예정">졸업예정</option>
+                                            <option value="재학중">재학중</option>
+                                            <option value="중퇴">중퇴</option>
+                                            <option value="수료">수료</option>
+                                            <option value="휴학">휴학</option>
+                                        </select></div>
+                                </div>
+                                <div class="uni-third-colmun-div-block">
+                                    <div class="uni-major-name-div-block">
+                                        <div class="uni-major-name-text-block">전공명</div>
+                                    </div>
+                                    <div class="uni-major-name-input-div-block"><input type="text" th:field="*{resumeGraduateSchoolFormDto[__${iterStat.index}__].gradSchoolMajor}"
+                                            class="uni-major-name-text-field w-input" maxlength="256" name="field-3"
+                                            placeholder="" id="grad-major-name-text-field"  /></div>
+                                    <div class="uni-division-div-block">
+                                        <div class="uni-division-text-block">분류</div>
+                                    </div>
+                                    <div class="uni-division-input-div-block"><select id="grad-division-select-field" name="field-2" th:field="*{resumeGraduateSchoolFormDto[__${iterStat.index}__].gradSchoolDivision}"
+                                            class="uni-division-select-field w-select">
+                                            <option value="">-</option>
+                                            <option value="석사과정">석사과정</option>
+                                            <option value="박사과정">박사과정</option>
+                                            <option value="석박사통합과정">석박사통합과정</option>
+                                        </select></div>
+                                </div>
+                            </div>
+                            </div>
+                            	<div class="list-manage-div-block"><label id="grad-add-button" class="list-add-button w-button" onclick="addResumeList(this)"></label><label
+                                        id="grad-delete-button" class="list-delete-button w-button"  onclick="deleteResumeList(this)"></label></div>
+                                        
+                            <div class="list-headinig">경력</div>
+                            <div>
+                            <div class="career-detail-div-block" th:each="resumeCareerFormDto, iterStat : ${resumeCombinedFormDto.resumeCareerFormDto}">
+                            	<input type="hidden" id="career-id" th:field="*{resumeCareerFormDto[__${iterStat.index}__].id}"/>
+                                <div class="user-career-first-column-div-block">
+                                    <div class="user-company-name-div-block">
+                                        <div class="user-company-name-text-block">회사명</div>
+                                    </div>
+                                    <div class="user-company-name-input-div-block"><input type="text" th:field="*{resumeCareerFormDto[__${iterStat.index}__].companyName}"
+                                            class="user-company-name-text-field w-input" maxlength="256" name="field-3"
+                                            placeholder="" id="career-company-name-text-field"  /></div>
+                                    <div class="user-position-div-block">
+                                        <div class="user-position-text-block">직급/직책</div>
+                                    </div>
+                                    <div class="user-position-input-div-block"><input type="text" th:field="*{resumeCareerFormDto[__${iterStat.index}__].companyPosition}"
+                                            class="user-position-text-field w-input" maxlength="256" name="field-3"
+                                            placeholder="" id="career-position-text-field"  /></div>
+                                </div>
+                                <div class="user-career-second-column-div-block">
+                                    <div class="user-dep-name-div-block">
+                                        <div class="user-dep-name-text-block">부서명</div>
+                                    </div>
+                                    <div class="user-dep-name-input-div-block"><input type="text" th:field="*{resumeCareerFormDto[__${iterStat.index}__].companyDepName}"
+                                            class="user-dep-name-text-field w-input" maxlength="256" name="field-3"
+                                            placeholder="" id="career-dep-name-text-field"  /></div>
+                                    <div class="user-job-div-block">
+                                        <div class="user-job-text-block">담당직무</div>
+                                    </div>
+                                    <div class="user-job-input-div-block"><input type="text" th:field="*{resumeCareerFormDto[__${iterStat.index}__].companyJob}"
+                                            class="user-job-text-field w-input" maxlength="256" name="field-3"
+                                            placeholder="" id="career-job-text-field" /></div>
+                                </div>
+                                <div class="user-career-third-colmun-div-block">
+                                    <div class="user-company-duration-div-block">
+                                        <div class="user-company-duration-text-block">기간</div>
+                                    </div>
+                                    <div class="user-company-duration-input-div-block"><select id="career-start-year-select-field" th:field="*{resumeCareerFormDto[__${iterStat.index}__].careerDurationStartYear}"
+                                            name="field-2"
+                                            class="user-company-first-year-select-field w-select">
+                                            <option value="">-</option>
+                                            <option th:each="year : ${#numbers.sequence(2026, 1973)}" th:value="${year}" th:text="${year}"></option>
+                                        </select><select id="career-start-month-select-field" name="field-2" th:field="*{resumeCareerFormDto[__${iterStat.index}__].careerDurationStartMonth}"
+                                            class="user-company-first-month-select-field w-select">
+                                            <option value="">-</option>
+                                            <option th:each="month : ${#numbers.sequence(1, 12)}" th:value="${month}" th:text="${month}"></option>
+                                        </select>
+                                        <div class="user-company-duration-input-text-block">~</div><select id="career-end-year-select-field" th:field="*{resumeCareerFormDto[__${iterStat.index}__].careerDurationEndYear}"
+                                            name="field-2"
+                                            class="user-company-second-year-select-field w-select">
+                                            <option value="">-</option>
+                                            <option th:each="year : ${#numbers.sequence(2026, 1973)}" th:value="${year}" th:text="${year}"></option>
+                                        </select><select id="career-end-month-select-field" name="field-2" th:field="*{resumeCareerFormDto[__${iterStat.index}__].careerDurationEndMonth}"
+                                            class="user-company-second-month-select-field w-select">
+                                            <option value="">-</option>
+                                            <option th:each="month : ${#numbers.sequence(1, 12)}" th:value="${month}" th:text="${month}"></option>
+                                        </select>
+                                    </div>
+                                    <div class="user-tenure-division-div-block">
+                                        <div class="user-tenure-division-text-block">재직여부</div>
+                                    </div>
+                                    <div class="user-tenure-division-input-div-block"><select id="career-tenure-division-select-field" th:field="*{resumeCareerFormDto[__${iterStat.index}__].companyTenureDivision}"
+                                            name="field-2" 
+                                            class="user-tenure-division-select-field w-select">
+                                            <option value="">-</option>
+                                            <option value="First">O</option>
+                                            <option value="Second">X</option>
+                                        </select></div>
+                                </div>
+                                <div class="user-career-fourth-column-div-block">
+                                    <div class="user-work-div-block">
+                                        <div class="user-work-text-block">담당업무</div>
+                                    </div>
+                                    <div class="user-work-input-div-block"><textarea placeholder="" maxlength="5000" th:field="*{resumeCareerFormDto[__${iterStat.index}__].companyJobContent}"
+                                            id="career-work-text-field" name="field-7"
+                                            class="user-work-text-field w-input"></textarea></div>
+                                </div>
+                            </div>
+                            </div>
+                            	<div class="list-manage-div-block"><label id="career-add-button" class="list-add-button w-button" onclick="addResumeList(this)"></label><label
+                                        id="career-delete-button" class="list-delete-button w-button"  onclick="deleteResumeList(this)"></label></div>
+                                        
+                            <div class="list-headinig">어학</div>
+                            <div>
+                            <div class="language-detail-div-block" th:each="resumeLanguageFormDto, iterStat : ${resumeCombinedFormDto.resumeLanguageFormDto}">
+                            	<input type="hidden" id="language-id" th:field="*{resumeLanguageFormDto[__${iterStat.index}__].id}"/>
+                                <div class="language-first-column-div-block">
+                                    <div class="language-name-div-block">
+                                        <div class="language-name-text-block">언어</div>
+                                    </div>
+                                    <div class="language-name-input-div-block"><input type="text" th:field="*{resumeLanguageFormDto[__${iterStat.index}__].languageName}"
+                                            class="language-name-text-field w-input" maxlength="256" name="field-3"
+                                            placeholder="" id="language-name-text-field"  /></div>
+                                    <div class="language-grades-div-block">
+                                        <div class="language-grades-text-block">점수/급수</div>
+                                    </div>
+                                    <div class="language-grades-input-div-block">
+                                        <div class="language-grade-input-div-block"><input type="text" th:field="*{resumeLanguageFormDto[__${iterStat.index}__].languageTotalScore}"
+                                                class="language-grades-text-field w-input" maxlength="256"
+                                                name="field-4" placeholder="" id="language-total-score-text-field"
+                                                /></div>
+                                        <div class="language-grades-input-text-block">/</div>
+                                        <div class="language-grade-input-div-block"><input type="text" th:field="*{resumeLanguageFormDto[__${iterStat.index}__].languageRating}"
+                                                class="language-grades-text-field w-input" maxlength="256"
+                                                name="field-4" placeholder="" id="language-rating-text-field"
+                                                /></div>
+                                    </div>
+                                </div>
+                                <div class="language-second-column-div-block">
+                                    <div class="language-acq-div-block">
+                                        <div class="languag-acq-text-block">취득일</div>
+                                    </div>
+                                    <div class="language-acq-input-div-block"><select id="field-2" name="language-acq-year" th:field="*{resumeLanguageFormDto[__${iterStat.index}__].languageAcqYear}"
+                                            class="language-year-select-field w-select">
+                                            <option value="">-</option>
+                                            <option th:each="year : ${#numbers.sequence(2026, 1973)}" th:value="${year}" th:text="${year}"></option>
+                                        </select><select id="language-acq-month" name="field-2" th:field="*{resumeLanguageFormDto[__${iterStat.index}__].languageAcqMonth}"
+                                            class="language-month-select-field w-select">
+                                            <option value="">-</option>
+                                            <option th:each="month : ${#numbers.sequence(1, 12)}" th:value="${month}" th:text="${month}"></option>
+                                        </select><select id="language-acq-day" name="field-2" th:field="*{resumeLanguageFormDto[__${iterStat.index}__].languageAcqDay}"
+                                            class="language-day-select-field w-select">
+                                            <option value="">-</option>
+                                            <option th:each="day : ${#numbers.sequence(1, 31)}" th:value="${day}" th:text="${day}"></option>
+                                        </select></div>
+                                    <div class="language-test-name-div-block">
+                                        <div class="language-test-name-text-block">시험명</div>
+                                    </div>
+                                    <div class="language-test-name-input-div-block"><input type="text" th:field="*{resumeLanguageFormDto[__${iterStat.index}__].languageTestName}"
+                                            class="language-test-name-text-field w-input" maxlength="256" name="field-3"
+                                            placeholder="" id="language-test-name" /></div>
+                                </div>
+                            </div>
+                            </div>
+                            	<div class="list-manage-div-block"><label id="language-add-button" class="list-add-button w-button" onclick="addResumeList(this)"></label><label
+                                        id="language-delete-button" class="list-delete-button w-button"  onclick="deleteResumeList(this)"></label></div>
+                                        
+                            <div class="list-headinig">수상경력</div>
+                            <div>
+                            <div class="awards-detail-div-block" th:each="resumeAwardsFormDto, iterStat : ${resumeCombinedFormDto.resumeAwardsFormDto}">
+                            	<input type="hidden" id="awards-id" th:field="*{resumeAwardsFormDto[__${iterStat.index}__].id}"/>
+                                <div class="awards-first-column-div-block">
+                                    <div class="awards-name-div-block">
+                                        <div class="awards-name-text-block">수상명</div>
+                                    </div>
+                                    <div class="awards-name-input-div-block"><input type="text" th:field="*{resumeAwardsFormDto[__${iterStat.index}__].awardsName}"
+                                            class="awards-name-text-field w-input" maxlength="256" name="field-3"
+                                            placeholder="" id="awards-name-text-field" /></div>
+                                    <div class="awards-acq-div-block">
+                                        <div class="awards-acq-text-block">수상일</div>
+                                    </div>
+                                    <div class="awards-acq-input-div-block"><select id="awards-year" name="field-2" th:field="*{resumeAwardsFormDto[__${iterStat.index}__].awardsYear}"
+                                            class="awards-year-select-field w-select">
+                                            <option value="">-</option>
+                                            <option th:each="year : ${#numbers.sequence(2026, 1973)}" th:value="${year}" th:text="${year}"></option>
+                                        </select><select id="awards-month" name="field-2" th:field="*{resumeAwardsFormDto[__${iterStat.index}__].awardsMonth}"
+                                            class="awards-month-select-field w-select">
+                                            <option value="">-</option>
+                                            <option th:each="month : ${#numbers.sequence(1, 12)}" th:value="${month}" th:text="${month}"></option>
+                                        </select><select id="awards-day" name="field-2" th:field="*{resumeAwardsFormDto[__${iterStat.index}__].awardsDay}"
+                                            class="awards-day-select-field w-select">
+                                            <option value="">-</option>
+                                            <option th:each="day : ${#numbers.sequence(1, 31)}" th:value="${day}" th:text="${day}"></option>
+                                        </select></div>
+                                </div>
+                                <div class="awards-second-column-div-block">
+                                    <div class="awards-agency-div-block">
+                                        <div class="awards-agency-text-block">수여기관</div>
+                                    </div>
+                                    <div class="awards-agency-input-div-block"><input type="text" th:field="*{resumeAwardsFormDto[__${iterStat.index}__].awardsAgencyName}"
+                                            class="awards-agency-text-field w-input" maxlength="256" name="field-3"
+                                            placeholder="" id="awards-agency"/></div>
+                                </div>
+                                <div class="awards-third-column-div-block">
+                                    <div class="awards-history-div-block">
+                                        <div class="awards-history-text-block">수상내역</div>
+                                    </div>
+                                    <div class="awards-history-input-div-block"><textarea placeholder="" th:field="*{resumeAwardsFormDto[__${iterStat.index}__].awardsHistory}"
+                                            maxlength="5000" id="awards-history" name="field-7" 
+                                            class="awards-history-text-field w-input"></textarea></div>
+                                </div>
+                            </div>
+                            </div>
+                            	<div class="list-manage-div-block"><label id="awards-add-button" class="list-add-button w-button" onclick="addResumeList(this)"></label><label
+                                        id="awards-delete-button" class="list-delete-button w-button"  onclick="deleteResumeList(this)"></label></div>
+                                        
+                            <div class="list-headinig">해외경험</div>
+                            <div>
+                            <div class="foreign-detail-div-block" th:each="resumeForeignFormDto, iterStat : ${resumeCombinedFormDto.resumeForeignFormDto}">
+                            	<input type="hidden" id="foreign-id" th:field="*{resumeForeignFormDto[__${iterStat.index}__].id}"/>
+                                <div class="foreign-first-column-div-block">
+                                    <div class="foreign-name-div-block">
+                                        <div class="foreign-name-text-block">국가</div>
+                                    </div>
+                                    <div class="foreign-name-input-div-block"><input type="text" th:field="*{resumeForeignFormDto[__${iterStat.index}__].countryName}"
+                                            class="foreign-name-text-field w-input" maxlength="256" name="field-3"
+                                            placeholder="" id="foreign-name" /></div>
+                                    <div class="foreign-duration-div-block">
+                                        <div class="foreign-duration-text-block">기간</div>
+                                    </div>
+                                    <div class="foreign-duration-input-div-block"><select id="foreign-start-year" name="field-2" th:field="*{resumeForeignFormDto[__${iterStat.index}__].foreignDurationStartYear}" 
+                                            class="foreign-first-year-select-field w-select">
+                                            <option value="">-</option>
+                                            <option th:each="year : ${#numbers.sequence(2026, 1973)}" th:value="${year}" th:text="${year}"></option>
+                                        </select><select id="foreign-start-month" name="field-2" th:field="*{resumeForeignFormDto[__${iterStat.index}__].foreignDurationStartMonth}"
+                                            class="foreign-first-month-select-field w-select">
+                                            <option value="">-</option>
+                                            <option th:each="month : ${#numbers.sequence(1, 12)}" th:value="${month}" th:text="${month}"></option>
+                                        </select>
+                                        <div class="foreign-duration-input-text-block">~</div><select id="foreign-end-year" th:field="*{resumeForeignFormDto[__${iterStat.index}__].foreignDurationEndYear}"
+                                            name="field-2" 
+                                            class="foreign-second-year-select-field w-select">
+                                            <option value="">-</option>
+                                            <option th:each="year : ${#numbers.sequence(2026, 1973)}" th:value="${year}" th:text="${year}"></option>
+                                        </select><select id="foreign-end-month" name="field-2" th:field="*{resumeForeignFormDto[__${iterStat.index}__].foreignDurationEndMonth}"
+                                            class="foreign-second-month-select-field w-select">
+                                            <option value="">-</option>
+                                            <option th:each="month : ${#numbers.sequence(1, 12)}" th:value="${month}" th:text="${month}"></option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="foreign-second-column-div-block">
+                                    <div class="foreign-agency-div-block">
+                                        <div class="foreign-agency-text-block">기관</div>
+                                    </div>
+                                    <div class="foreign-agency-input-div-block"><input type="text" th:field="*{resumeForeignFormDto[__${iterStat.index}__].foreignAgencyName}"
+                                            class="foreign-agency-text-field w-input" maxlength="256" name="field-3"
+                                            placeholder="" id="foreign-agency" /></div>
+                                </div>
+                                <div class="foreign-third-column-div-block">
+                                    <div class="foreign-history-div-block">
+                                        <div class="foreign-history-text-block">내용</div>
+                                    </div>
+                                    <div class="foreign-history-input-div-block"><textarea placeholder="" th:field="*{resumeForeignFormDto[__${iterStat.index}__].foreignHistory}"
+                                            maxlength="5000" id="foreign-history" name="field-7"
+                                            class="foreign-history-text-field w-input"></textarea></div>
+                                </div>
+                            </div>
+                            </div>
+                            	<div class="list-manage-div-block"><label id="foreign-add-button" class="list-add-button w-button" onclick="addResumeList(this)"></label><label
+                                        id="foreign-delete-button" class="list-delete-button w-button"  onclick="deleteResumeList(this)"></label></div>
+                                        
+                            <div class="list-headinig">관련활동 및 사회경험</div>
+                            <div>
+                            <div class="activity-detail-div-block" th:each="resumeActivityFormDto, iterStat : ${resumeCombinedFormDto.resumeActivityFormDto}">
+                            	<input type="hidden" id="activity-id" th:field="*{resumeActivityFormDto[__${iterStat.index}__].id}"/>
+                                <div class="activity-first-column-div-block">
+                                    <div class="activity-name-div-block">
+                                        <div class="activity-name-text-block">활동명</div>
+                                    </div> 
+                                    <div class="activity-name-input-div-block"><input type="text" th:field="*{resumeActivityFormDto[__${iterStat.index}__].activityName}"
+                                            class="name-text-field w-input" maxlength="256" name="field-3"
+                                            placeholder="" id="activity-name" /></div>
+                                    <div class="activity-duration-div-block">
+                                        <div class="activity-duration-text-block">활동기간</div>
+                                    </div>
+                                    <div class="activity-duration-input-div-block"><select id="activity-start-year" name="field-2" th:field="*{resumeActivityFormDto[__${iterStat.index}__].activityDurationStartYear}"
+                                            class="activity-first-year-select-field w-select">
+                                            <option value="">-</option>
+                                            <option th:each="year : ${#numbers.sequence(2026, 1973)}" th:value="${year}" th:text="${year}"></option>
+                                        </select><select id="activity-start-month" name="field-2" th:field="*{resumeActivityFormDto[__${iterStat.index}__].activityDurationStartMonth}"
+                                            class="activity-first-month-select-field w-select">
+                                            <option value="">-</option>
+                                            <option th:each="month : ${#numbers.sequence(1, 12)}" th:value="${month}" th:text="${month}"></option>
+                                        </select><select id="activity-start-day" name="field-2" th:field="*{resumeActivityFormDto[__${iterStat.index}__].activityDurationStartDay}"
+                                            class="activity-first-day-select-field w-select">
+                                            <option value="">-</option>
+                                            <option th:each="day : ${#numbers.sequence(1, 31)}" th:value="${day}" th:text="${day}"></option>
+                                        </select>
+                                        <div class="activity-duration-input-text-block">~</div><select id="activity-end-year" th:field="*{resumeActivityFormDto[__${iterStat.index}__].activityDurationEndYear}"
+                                            name="field-2" 
+                                            class="foreign-second-year-select-field w-select">
+                                            <option value="">-</option>
+											<option th:each="year : ${#numbers.sequence(2026, 1973)}" th:value="${year}" th:text="${year}"></option>
+                                        </select><select id="activity-end-month" name="field-2" th:field="*{resumeActivityFormDto[__${iterStat.index}__].activityDurationEndMonth}"
+                                            class="foreign-second-month-select-field w-select">
+                                            <option value="">-</option>
+                                            <option th:each="month : ${#numbers.sequence(1, 12)}" th:value="${month}" th:text="${month}"></option>
+                                        </select><select id="activity-end-day" name="field-2" th:field="*{resumeActivityFormDto[__${iterStat.index}__].activityDurationEndDay}"
+                                            class="activity-second-day-select-field w-select">
+                                            <option value="">-</option>
+                                            <option th:each="day : ${#numbers.sequence(1, 31)}" th:value="${day}" th:text="${day}"></option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="foreign-second-column-div-block">
+                                    <div class="activity-agency-div-block">
+                                        <div class="activity-agency-text-block">기관/장소</div>
+                                    </div>
+                                    <div class="activity-agency-input-div-block"><input type="text" th:field="*{resumeActivityFormDto[__${iterStat.index}__].activityAgencyName}"
+                                            class="activity-agency-text-field w-input" maxlength="256" name="field-3"
+                                            placeholder="" id="activity-agency" /></div>
+                                </div>
+                                <div class="foreign-third-column-div-block">
+                                    <div class="activity-history-div-block">
+                                        <div class="activity-history-text-block">내용</div>
+                                    </div>
+                                    <div class="activity-history-input-div-block"><textarea placeholder="" th:field="*{resumeActivityFormDto[__${iterStat.index}__].activityHistory}"
+                                            maxlength="5000" id="activity-history" name="field-7"
+                                            class="activity-history-text-field w-input"></textarea></div>
+                                </div>
+                            </div>
+                            </div>
+                           	<div class="list-manage-div-block"><label id="activity-add-button" class="list-add-button w-button" onclick="addResumeList(this)"></label><label
+                                        id="activity-delete-button" class="list-delete-button w-button"  onclick="deleteResumeList(this)"></label></div>
+                                        
+                            <div class="list-headinig">교육</div>
+                            <div>
+                            <div class="edu-detail-div-block" th:each="resumeEducationFormDto, iterStat : ${resumeCombinedFormDto.resumeEducationFormDto}">
+                            	<input type="hidden" id="edu-id" th:field="*{resumeEducationFormDto[__${iterStat.index}__].id}"/>
+                                <div class="activity-first-column-div-block">
+                                    <div class="activity-name-div-block">
+                                        <div class="edu-name-text-block">교육명</div>
+                                    </div>
+                                    <div class="edu-name-input-div-block"><input type="text" th:field="*{resumeEducationFormDto[__${iterStat.index}__].eduName}"
+                                            class="name-text-field w-input" maxlength="256" name="edu-name"
+                                            placeholder="" id="field-3"  /></div>
+                                    <div class="edu-duration-div-block">
+                                        <div class="edu-duration-text-block">교육기간</div>
+                                    </div>
+                                    <div class="edu-duration-input-div-block"><select id="edu-start-year" name="field-2" th:field="*{resumeEducationFormDto[__${iterStat.index}__].eduDurationStartYear}"
+                                            class="edu-first-year-select-field w-select">
+                                            <option value="">-</option>
+                                            <option th:each="year : ${#numbers.sequence(2026, 1973)}" th:value="${year}" th:text="${year}"></option>
+                                        </select><select id="edu-start-month" name="field-2" th:field="*{resumeEducationFormDto[__${iterStat.index}__].eduDurationStartMonth}"
+                                            class="edu-first-month-select-field w-select">
+                                            <option value="">-</option>
+                                            <option th:each="month : ${#numbers.sequence(1, 12)}" th:value="${month}" th:text="${month}"></option>
+                                        </select><select id="edu-start-day" name="field-2" th:field="*{resumeEducationFormDto[__${iterStat.index}__].eduDurationStartDay}"
+                                            class="edu-first-day-select-field w-select">
+                                            <option value="">-</option>
+                                            <option th:each="day : ${#numbers.sequence(1, 31)}" th:value="${day}" th:text="${day}"></option>
+                                        </select>
+                                        <div class="edu-duration-input-text-block">~</div><select id="edu-end-year" th:field="*{resumeEducationFormDto[__${iterStat.index}__].eduDurationEndYear}"
+                                            name="field-2"
+                                            class="edu-second-year-select-field w-select">
+                                            <option value="">-</option>
+                                            <option th:each="year : ${#numbers.sequence(2026, 1973)}" th:value="${year}" th:text="${year}"></option>
+                                        </select><select id="edu-end-month" name="field-2" th:field="*{resumeEducationFormDto[__${iterStat.index}__].eduDurationEndMonth}"
+                                            class="edu-second-month-select-field w-select">
+                                            <option value="">-</option>
+                                            <option th:each="month : ${#numbers.sequence(1, 12)}" th:value="${month}" th:text="${month}"></option>
+                                        </select><select id="edu-end-day" name="field-2" th:field="*{resumeEducationFormDto[__${iterStat.index}__].eduDurationEndDay}"
+                                            class="edu-second-day-select-field w-select">
+                                            <option value="">-</option>
+                                            <option th:each="day : ${#numbers.sequence(1, 31)}" th:value="${day}" th:text="${day}"></option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="foreign-second-column-div-block">
+                                    <div class="edu-agency-div-block">
+                                        <div class="edu-agency-text-block">교육기관</div>
+                                    </div>
+                                    <div class="edu-agency-input-div-block"><input type="text" th:field="*{resumeEducationFormDto[__${iterStat.index}__].eduAgencyName}"
+                                            class="edu-agency-text-field w-input" maxlength="256" name="field-3"
+                                            placeholder="" id="edu-agency" /></div>
+                                </div>
+                                <div class="foreign-third-column-div-block">
+                                    <div class="edu-history-div-block">
+                                        <div class="activity-history-text-block">내용</div>
+                                    </div>
+                                    <div class="edu-history-input-div-block"><textarea placeholder="" maxlength="5000" th:field="*{resumeEducationFormDto[__${iterStat.index}__].eduHistory}"
+                                            id="edu-history" name="field-7"
+                                            class="edu-history-text-field w-input"></textarea></div>
+                                </div>
+                            </div>
+                            </div>
+                            <div class="list-manage-div-block"><label id="edu-add-button" class="list-add-button w-button" onclick="addResumeList(this)"></label><label
+                                        id="edu-delete-button" class="list-delete-button w-button"  onclick="deleteResumeList(this)"></label></div>
+                                        
+                                        
+                            <div class="list-headinig">취업우대사항</div>
+                            <div>
+                            <div class="preferent-detail-div-block" th:each="resumePreferentFormDto, iterStat : ${resumeCombinedFormDto.resumePreferentFormDto}">
+                            	<input type="hidden" id="preferent" th:field="*{resumePreferentFormDto[__${iterStat.index}__].id}"/>
+                                <div class="preferent-first-column-div-block">
+                                    <div class="veterans-name-div-block">
+                                        <div class="veterans-name-text-block">보훈사항</div>
+                                    </div>
+                                    <div class="veterans-name-input-div-block"><label
+                                            class="preferent-radio-button-field w-radio"><input type="radio" th:field="*{resumePreferentFormDto[__${iterStat.index}__].veteransDivison}"
+                                                id="preferent-veterans-first-radio" name="radio" value="대상"
+                                                class="w-form-formradioinput w-radio-input" /><span
+                                                class="radio-button-label w-form-label"
+                                                for="preferent-veterans-radio">대상</span></label><label
+                                            class="preferent-radio-button-field w-radio"><input type="radio" th:field="*{resumePreferentFormDto[__${iterStat.index}__].veteransDivison}"
+                                                id="preferent-veterans-second-radio" name="radio" value="비대상"
+                                                class="w-form-formradioinput w-radio-input" /><span
+                                                class="radio-button-label-2 w-form-label"
+                                                for="preferent-veterans-radio">비대상</span></label></div>
+                                </div>
+                                <div class="preferent-second-column-div-block">
+                                    <div class="obstacle-div-block">
+                                        <div class="obstacle-text-block">장애여부</div>
+                                    </div>
+                                    <div class="obstacle-input-div-block"><label
+                                            class="preferent-radio-button-field w-radio"><input type="radio" th:field="*{resumePreferentFormDto[__${iterStat.index}__].obstacleDivsion}"
+                                                id="preferent-obstacle-first-radio" name="radio" value="대상"
+                                                class="w-form-formradioinput w-radio-input" /><span
+                                                class="radio-button-label-3 w-form-label"
+                                                for="radio-3">대상</span></label><label
+                                            class="preferent-radio-button-field w-radio"><input type="radio" th:field="*{resumePreferentFormDto[__${iterStat.index}__].obstacleDivsion}"
+                                                id="preferent-obstacle-second-radio" name="radio" value="비대상"
+                                                class="w-form-formradioinput w-radio-input" /><span
+                                                class="radio-button-label-4 w-form-label"
+                                                for="radio-4">비대상</span></label></div>
+                                    <div class="obstacle-grade-div-block">
+                                        <div class="obstacle-grade-text-block">장애등급</div>
+                                    </div>
+                                    <div class="obstacle-grade-input-div-block"><input type="text" th:field="*{resumePreferentFormDto[__${iterStat.index}__].obstacleGrade}"
+                                            class="obstacle-grade-text-field w-input" maxlength="256" name="field-3"
+                                            placeholder="" id="preferent-obstacle-grade" /></div>
+                                </div>
+                                <div class="preferent-third-column-div-block">
+                                    <div class="military-div-block">
+                                        <div class="military-text-block">병역구분</div>
+                                    </div>
+                                    <div class="military-input-div-block"><label
+                                            class="preferent-radio-button-field w-radio"><input type="radio" th:field="*{resumePreferentFormDto[__${iterStat.index}__].militaryDivison}"
+                                                id="preferent-military-first-radio" name="radio" value="군필"
+                                                class="w-form-formradioinput w-radio-input" /><span
+                                                class="radio-button-label-5 w-form-label"
+                                                for="radio-5">군필</span></label><label
+                                            class="preferent-radio-button-field w-radio"><input type="radio" th:field="*{resumePreferentFormDto[__${iterStat.index}__].militaryDivison}"
+                                                id="preferent-military-second-radio" name="radio" value="미필"
+                                                class="w-form-formradioinput w-radio-input" /><span
+                                                class="radio-button-label-6 w-form-label"
+                                                for="radio-6">미필</span></label><label
+                                            class="preferent-radio-button-field w-radio"><input type="radio" th:field="*{resumePreferentFormDto[__${iterStat.index}__].militaryDivison}"
+                                                id="preferent-military-third-radio" name="radio" value="면제"
+                                                class="w-form-formradioinput w-radio-input" /><span
+                                                class="radio-button-label-7 w-form-label"
+                                                for="radio-7">면제</span></label></div>
+                                    <div class="military-duration-div-block">
+                                        <div class="military-duration-text-block">복무기간</div>
+                                    </div>
+                                    <div class="military-duration-input-div-block"><select id="preferent-start-year-military-duration" name="field-2" th:field="*{resumePreferentFormDto[__${iterStat.index}__].militaryDurationStartYear}"
+                                            class="military-first-year-select-field w-select">
+                                            <option value="">-</option>
+                                            <option th:each="year : ${#numbers.sequence(2026, 1973)}" th:value="${year}" th:text="${year}"></option>
+                                        </select><select id="preferent-start-month-military-duration" name="field-2" th:field="*{resumePreferentFormDto[__${iterStat.index}__].militaryDurationStartMonth}"
+                                            class="military-first-month-select-field w-select">
+                                            <option value="">-</option>
+                                            <option th:each="month : ${#numbers.sequence(1, 12)}" th:value="${month}" th:text="${month}"></option>
+                                        </select>
+                                        <div class="military-duration-input-text-block">~</div><select id="preferent-end-year-military-duration" th:field="*{resumePreferentFormDto[__${iterStat.index}__].militaryDurationEndYear}"
+                                            name="field-2"
+                                            class="military-second-year-select-field w-select">
+                                            <option value="">-</option>
+                                            <option th:each="year : ${#numbers.sequence(2026, 1973)}" th:value="${year}" th:text="${year}"></option>
+                                        </select><select id="preferent-end-month-military-duration" name="field-2" th:field="*{resumePreferentFormDto[__${iterStat.index}__].militaryDurationEndMonth}"
+                                            class="military-second-month-select-field w-select">
+                                            <option value="">-</option>
+                                            <option th:each="month : ${#numbers.sequence(1, 12)}" th:value="${month}" th:text="${month}"></option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="preferent-fourth-column-div-block">
+                                    <div class="bymilitary-div-block">
+                                        <div class="bymilitary-text-block">군별</div>
+                                    </div>
+                                    <div class="bymilitary-input-div-block"><input type="text" th:field="*{resumePreferentFormDto[__${iterStat.index}__].byMilitaryDuration}"
+                                            class="bymilitary-text-field w-input" maxlength="256" name="field-3"
+                                            placeholder="" id="preferent-bymilitary"  /></div>
+                                    <div class="military-classes-div-block">
+                                        <div class="military-classes-text-block">계급</div>
+                                    </div>
+                                    <div class="military-clasees-input-div-block"><input type="text" th:field="*{resumePreferentFormDto[__${iterStat.index}__].MilitaryClasses}"
+                                            class="military-classes-text-field w-input" maxlength="256" name="field-3"
+                                            placeholder="" id="preferent-military-classes"  /></div>
+                                </div>
+                            </div>
+                            </div>
+                            <div class="list-manage-div-block"><label id="preferent-add-button" class="list-add-button w-button" onclick="addResumeList(this)"></label><label
+                                        id="preferent-delete-button" class="list-delete-button w-button"  onclick="deleteResumeList(this)"></label></div>
+                                        
+                            <div class="save-cancel-div-block"><a href="#"
+                                    class="resume-cancel-button w-button">취소</a><input type="submit" value="등록"
+                                    th:formaction="@{/resumecreate}" class="resume-submit-button w-button" /></div>
+                        </div>
+                        
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+</html>

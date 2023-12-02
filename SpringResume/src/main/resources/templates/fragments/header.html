@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+	  xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+
+	<div th:fragment="header">
+	<meta charset="UTF-8">
+	
+	<!-- 로그인 모달 -->
+    <div class="login-modal-container" id="loginModalContainer">
+        <div class="login-modal">
+            <div class="login-modal-delete-div-block">
+            <span href="#" class="login-modal-delete-btn w-button" id="closeModalBtn"></span>
+            </div>
+            <div class="login-modal-heading">소셜 계정으로 이용이 가능합니다.</div>
+            
+            <form action="/oauth2/authorization/google" method="get" id="googleLoginForm">
+            <div class="google-login-div-block" id="googleLogin">
+                <div class="google-login-img-div-block">
+                	<img th:src="@{/static/images/google_logo.png}"
+                        loading="lazy" alt="" class="google-logo" /></div>
+                <div class="google-login-text-block">
+                    <div class="google-login-text">구글 계정으로 이용하기</div>
+                </div>
+            </div>
+            </form>
+            
+            <form action="/oauth2/authorization/kakao" method="get" id="kakaoLoginForm">
+            <div class="kakao-login-div-block" id="kakaoLogin">
+                <div class="kakao-login-img-div-block">
+                	<img th:src="@{/static/images/kakao_logo.png}"
+                         sizes="(max-width: 767px) 18px, (max-width: 991px) 2vw, 18px"
+                        alt="" class="kakao-logo" /></div>
+                <div class="kakao-login-text-block">
+                    <div class="kakao-login-text">카카오 계정으로 이용하기</div>
+                </div>
+            </div>
+            </form>
+            
+            <form action="/oauth2/authorization/naver" method="get" id="naverLoginForm">
+            <div class="naver-login-div-block" id="naverLogin">
+                <div class="naver-login-img-div-block"><img
+                        th:src="@{/static/images/naver_logo.png}"
+                        alt="" class="naver-logo" /></div>
+                <div class="naver-login-text-block">
+                    <div class="naver-login-text">네이버 계정으로 이용하기</div>
+                </div>
+            </div>
+            </form>
+            
+        </div>
+    </div>
+    
+		<div role="banner" class="navigation w-nav">
+        <div class="w-container"><a th:href="@{/}" class="brand-link w-nav-brand">
+                <div class="logo-text">FullSpec</div>
+            </a>
+           	<nav role="navigation" class="nav-menu w-nav-menu">
+            		<a onclick="CommunityLoad(0, '')" class="nav-link w-nav-link">커뮤니티</a>
+            		<a th:href="@{/resumelist}" class="nav-link w-nav-link" th:if="${loginNickname != null}" sec:authorize="isAuthenticated()">이력서</a>
+           			<a data-toggle="modal" href="#myModal"  id="openModalBtn" class="nav-link w-nav-link"  th:if="${loginNickname == null}">회원가입</a>
+            		<a data-toggle="modal" href="#myModal"  id="openModalBtn2" class="nav-link w-nav-link"  th:if="${loginNickname == null}">로그인</a>
+            		<a th:href="@{/logout}" class="nav-link w-nav-link" th:if="${loginNickname != null}" sec:authorize="isAuthenticated()">로그아웃</a>
+            		<img th:src="${loginPictureUrl}" id="loginPicture"
+                    width="64" alt="" class="user"  sec:authorize="isAuthenticated()" th:if="${loginNickname != null}"/>
+                    
+                    <a href="#customers"  class="nav-link w-nav-link"  th:text="${loginNickname}" sec:authorize="isAuthenticated()" th:if="${loginNickname != null}">User</a>
+           	</nav>
+            <div class="nav-link menu w-nav-button">
+                <div class="w-icon-nav-menu"></div>
+            </div>
+        </div>
+    </div>
+	</div>
+
+</html>

@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html 	xmlns:th="http://www.thymeleaf.org"		
+        xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+        layout:decorate="~{layouts/layout}">
+
+<th:block layout:fragment="script">
+	<script th:inline="javascript">
+	</script>
+
+</th:block>
+
+<head>
+<div layout:fragment="head">
+    <meta charset="utf-8" />
+</div>
+</head>
+
+<div layout:fragment="content" id="content-container">
+ <div id="features" class="section">
+        <div class="w-layout-blockcontainer user-resume-container w-container">
+            <div class="user-resume-div-block">
+                <div class="user-resume-form-block w-form">
+                    <form id="email-form" name="email-form" method="post" th:object="${resumeCombinedFormDto}" enctype="multipart/form-data">
+                        <div class="user-resume-heading" th:text="${resumeCombinedFormDto.resumeFormDto.resumeName}"></div>
+                        <input type="hidden" th:field="*{resumeFormDto.Id}"/>
+                        <div class="user-resume-info-div-block">
+                            <div class="user-info-div-block">
+                                <div class="user-resume-image-div-block"><img id="resumeImage"
+     									th:src="${resumeCombinedFormDto.resumeFormDto.resumePictureUrl != null and resumeCombinedFormDto.resumeFormDto.resumePictureUrl != ''} ? ${resumeCombinedFormDto.resumeFormDto.resumePictureUrl} : @{/static/images/resume_none_image.png}"
+     									loading="lazy" alt="" class="user-resume-image"
+     									th:data-default-src="@{/static/images/resume_none_image.png}" /></div>
+                                <div class="user-detail-div-block">
+                                    <div class="user-detail-first-column-div-block">
+                                        <div class="user-name-div-block">
+                                            <div class="user-name-text-block">이름</div>
+                                        </div>
+                                        <div class="user-name-input-div-block info-view" th:text="${resumeCombinedFormDto.resumeFormDto.memberName}"></div>
+                                        <div class="user-birth-div-block">
+                                            <div class="user-birth-text-block">생년월일</div>
+                                        </div>
+                                        <div class="user-birth-input-div-block" th:text="${resumeCombinedFormDto.resumeFormDto.memberBirthYear + '-' + resumeCombinedFormDto.resumeFormDto.memberBirthMonth + '-' + resumeCombinedFormDto.resumeFormDto.memberBirthDay}"></div>
+                                        <div class="user-gender-div-block">
+                                            <div class="text-block">성별</div>
+                                        </div>
+                                        <div class="user-gender-input-div-block" th:text="${resumeCombinedFormDto.resumeFormDto.memberGender}"></div>
+                                    </div>
+                                    <div class="user-detail-second-column-div-block">
+                                        <div class="call-number-div-block">
+                                            <div class="call-number-text-block">전화번호</div>
+                                        </div>
+                                        <div class="call-number-input-div-block info-view" th:text="${resumeCombinedFormDto.resumeFormDto.memberPhoneNumber}"></div>
+                                        <div class="phone-number-div-block">
+                                            <div class="phone-number-text-block">휴대폰번호</div>
+                                        </div>
+                                        <div class="phone-number-input-div-block info-view" th:text="${resumeCombinedFormDto.resumeFormDto.memberCellPhoneNumber}"></div>
+                                    </div>
+                                    <div class="user-detail-third-column-div-block">
+                                        <div class="email-div-block">
+                                            <div class="email-text-block">이메일</div>
+                                        </div>
+                                        <div class="email-input-div-block info-view" th:text="${resumeCombinedFormDto.resumeFormDto.memberEmail}"></div>
+                                        <div class="sns-div-block">
+                                            <div class="sns-text-block">SNS</div>
+                                        </div>
+                                        <div class="sns-input-div-block info-view" th:text="${resumeCombinedFormDto.resumeFormDto.memberSns}"></div>
+                                    </div>
+                                    <div class="user-detail-fourth-column-div-block">
+                                        <div class="address-div-block">
+                                            <div class="address-text-block">주소</div>
+                                        </div>
+                                        <div class="address-input-div-block info-view" th:text="${resumeCombinedFormDto.resumeFormDto.memberAddress}"></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="list-headinig">고등학교</div>
+                            <input type="hidden" th:field="*{resumeHighSchoolFormDto.id}">
+                            <div class="high-school-div-block">
+                                <div class="high-graduation-year-div-block">
+                                    <div class="high-graduation-year-text-block">졸업년도</div>
+                                </div>
+                                <div class="high-graduation-year-input-div-block info-view" th:text="*{resumeHighSchoolFormDto.highSchoolGraduateYear}"></div>
+                                <div class="high-school-name-div-block">
+                                    <div class="high-school-name-text-block">학교명</div>
+                                </div>
+                                <div class="high-school-input-div-block info-view" th:text="*{resumeHighSchoolFormDto.highSchoolName}"></div>
+                                <div class="high-school-graduation-division-div-block">
+                                    <div class="high-school-graduation-division-text-block">졸업구분</div>
+                                </div>
+                                <div class="high-school-graduation-division-input-div-block info-view" th:text="*{resumeHighSchoolFormDto.highSchoolDivision}"></div>
+                            </div>
+                            
+                            <div class="list-headinig">대학교</div>
+                            <div>
+                            <div class="uni-detail-div-block" th:each="resumeUniversityFormDto, iterStat : ${resumeCombinedFormDto.resumeUniversityFormDto}">
+                            	<input type="hidden" id="uni-id" th:field="*{resumeUniversityFormDto[__${iterStat.index}__].id}"/>
+                                <div class="uni-first-column-div-block">
+                                    <div class="uni-name-div-block">
+                                        <div class="uni-name-text-block">학교명</div>
+                                    </div>
+                                    <div class="uni-name-input-div-block" th:text="*{resumeUniversityFormDto[__${iterStat.index}__].uniName}"></div>
+                                    <div class="uni-grades-div-block">
+                                        <div class="uni-grades-text-block">학점</div>
+                                    </div>
+                                    <div class="uni-grades-input-div-block" th:text="*{resumeUniversityFormDto[__${iterStat.index}__].uniTotalGrade} + ' / ' + *{resumeUniversityFormDto[__${iterStat.index}__].uniMaxGrade}"></div>
+                                </div>
+                                <div class="uni-second-column-div-block">
+                                    <div class="uni-duration-div-block">
+                                        <div class="uni-duration-text-block">기간</div>
+                                    </div>
+                                    <div class="uni-duration-input-div-block" th:text="*{resumeUniversityFormDto[__${iterStat.index}__].uniDurationStartYear} + '.' + *{resumeUniversityFormDto[__${iterStat.index}__].uniDurationStartMonth} + ' ~ ' + *{resumeUniversityFormDto[__${iterStat.index}__].uniDurationEndYear} + '.' + *{resumeUniversityFormDto[__${iterStat.index}__].uniDurationEndMonth}"></div>
+                                    <div class="uni-graduation-division-div-block">
+                                        <div class="uni-graduation-division-text-block">졸업구분</div>
+                                    </div>
+                                    <div class="uni-graduation-division-input-div-block" th:text="*{resumeUniversityFormDto[__${iterStat.index}__].uniGraduateDivison}"></div>
+                                </div>
+                                <div class="uni-third-colmun-div-block" >
+                                    <div class="uni-major-name-div-block">
+                                        <div class="uni-major-name-text-block">전공명</div>
+                                    </div>
+                                    <div class="uni-major-name-input-div-block" th:text="*{resumeUniversityFormDto[__${iterStat.index}__].uniMajor}"></div>
+                                    <div class="uni-division-div-block">
+                                        <div class="uni-division-text-block">분류</div>
+                                    </div>
+                                    <div class="uni-division-input-div-block" th:text="*{resumeUniversityFormDto[__${iterStat.index}__].uniDivision}"></div>
+                                </div>
+                            </div>
+                            </div>
+                             
+                                        
+                            <div class="list-headinig">대학원</div>
+                            <div>
+                            <div class="grad-detail-div-block" th:each="resumeGraduateSchoolFormDto, iterStat : ${resumeCombinedFormDto.resumeGraduateSchoolFormDto}">
+                            	<input type="hidden" id="grad-id" th:field="*{resumeGraduateSchoolFormDto[__${iterStat.index}__].id}"/>
+                                <div class="uni-first-column-div-block">
+                                    <div class="uni-name-div-block">
+                                        <div class="uni-name-text-block">학교명</div>
+                                    </div>
+                                    <div class="uni-name-input-div-block"></div>
+                                    <div class="uni-grades-div-block">
+                                        <div class="uni-grades-text-block">학점</div>
+                                    </div>
+                                    <div class="uni-grades-input-div-block">
+                                        <div class="language-grade-input-div-block"></div>
+                                    </div>
+                                </div>
+                                <div class="uni-second-column-div-block">
+                                    <div class="uni-duration-div-block">
+                                        <div class="uni-duration-text-block">기간</div>
+                                    </div>
+                                    <div class="uni-duration-input-div-block"></div>
+                                    <div class="uni-graduation-division-div-block">
+                                        <div class="uni-graduation-division-text-block">졸업구분</div>
+                                    </div>
+                                    <div class="uni-graduation-division-input-div-block"></div>
+                                </div>
+                                <div class="uni-third-colmun-div-block">
+                                    <div class="uni-major-name-div-block">
+                                        <div class="uni-major-name-text-block">전공명</div>
+                                    </div>
+                                    <div class="uni-major-name-input-div-block"></div>
+                                    <div class="uni-division-div-block">
+                                        <div class="uni-division-text-block">분류</div>
+                                    </div>
+                                    <div class="uni-division-input-div-block"></div>
+                                </div>
+                            </div>
+                            </div>
+                            	
+                                        
+                            <div class="list-headinig">경력</div>
+                            <div>
+                            <div class="career-detail-div-block" th:each="resumeCareerFormDto, iterStat : ${resumeCombinedFormDto.resumeCareerFormDto}">
+                            	<input type="hidden" id="career-id" th:field="*{resumeCareerFormDto[__${iterStat.index}__].id}"/>
+                                <div class="user-career-first-column-div-block">
+                                    <div class="user-company-name-div-block">
+                                        <div class="user-company-name-text-block">회사명</div>
+                                    </div>
+                                    <div class="user-company-name-input-div-block"></div>
+                                    <div class="user-position-div-block">
+                                        <div class="user-position-text-block">직급/직책</div>
+                                    </div>
+                                    <div class="user-position-input-div-block"></div>
+                                </div>
+                                <div class="user-career-second-column-div-block">
+                                    <div class="user-dep-name-div-block">
+                                        <div class="user-dep-name-text-block">부서명</div>
+                                    </div>
+                                    <div class="user-dep-name-input-div-block"></div>
+                                    <div class="user-job-div-block">
+                                        <div class="user-job-text-block">담당직무</div>
+                                    </div>
+                                    <div class="user-job-input-div-block"></div>
+                                </div>
+                                <div class="user-career-third-colmun-div-block">
+                                    <div class="user-company-duration-div-block">
+                                        <div class="user-company-duration-text-block">기간</div>
+                                    </div>
+                                    <div class="user-company-duration-input-div-block"></div>
+                                    <div class="user-tenure-division-div-block">
+                                        <div class="user-tenure-division-text-block">재직여부</div>
+                                    </div>
+                                    <div class="user-tenure-division-input-div-block"></div>
+                                </div>
+                                <div class="user-career-fourth-column-div-block">
+                                    <div class="user-work-div-block">
+                                        <div class="user-work-text-block">담당업무</div>
+                                    </div>
+                                    <div class="user-work-input-div-block"></div>
+                                </div>
+                            </div>
+                            </div>
+                            
+                            <div class="list-headinig">어학</div>
+                            <div>
+                            <div class="language-detail-div-block" th:each="resumeLanguageFormDto, iterStat : ${resumeCombinedFormDto.resumeLanguageFormDto}">
+                            	<input type="hidden" id="language-id" th:field="*{resumeLanguageFormDto[__${iterStat.index}__].id}"/>
+                                <div class="language-first-column-div-block">
+                                    <div class="language-name-div-block">
+                                        <div class="language-name-text-block">언어</div>
+                                    </div>
+                                    <div class="language-name-input-div-block"></div>
+                                    <div class="language-grades-div-block">
+                                        <div class="language-grades-text-block">점수/급수</div>
+                                    </div>
+                                    <div class="language-grades-input-div-block">
+                                        <div class="language-grade-input-div-block"></div>
+                                        <div class="language-grades-input-text-block">/</div>
+                                        <div class="language-grade-input-div-block"></div>
+                                    </div>
+                                </div>
+                                <div class="language-second-column-div-block">
+                                    <div class="language-acq-div-block">
+                                        <div class="languag-acq-text-block">취득일</div>
+                                    </div>
+                                    <div class="language-acq-input-div-block"></div>
+                                    <div class="language-test-name-div-block">
+                                        <div class="language-test-name-text-block">시험명</div>
+                                    </div>
+                                    <div class="language-test-name-input-div-block"></div>
+                                </div>
+                            </div>
+                            </div>
+                            	
+                            <div class="list-headinig">수상경력</div>
+                            <div>
+                            <div class="awards-detail-div-block" th:each="resumeAwardsFormDto, iterStat : ${resumeCombinedFormDto.resumeAwardsFormDto}">
+                            	<input type="hidden" id="awards-id" th:field="*{resumeAwardsFormDto[__${iterStat.index}__].id}"/>
+                                <div class="awards-first-column-div-block">
+                                    <div class="awards-name-div-block">
+                                        <div class="awards-name-text-block">수상명</div>
+                                    </div>
+                                    <div class="awards-name-input-div-block"></div>
+                                    <div class="awards-acq-div-block">
+                                        <div class="awards-acq-text-block">수상일</div>
+                                    </div>
+                                    <div class="awards-acq-input-div-block"></div>
+                                </div>
+                                <div class="awards-second-column-div-block">
+                                    <div class="awards-agency-div-block">
+                                        <div class="awards-agency-text-block">수여기관</div>
+                                    </div>
+                                    <div class="awards-agency-input-div-block"></div>
+                                </div>
+                                <div class="awards-third-column-div-block">
+                                    <div class="awards-history-div-block">
+                                        <div class="awards-history-text-block">수상내역</div>
+                                    </div>
+                                    <div class="awards-history-input-div-block"></div>
+                                </div>
+                            </div>
+                            </div>
+                        
+                            <div class="list-headinig">해외경험</div>
+                            <div>
+                            <div class="foreign-detail-div-block" th:each="resumeForeignFormDto, iterStat : ${resumeCombinedFormDto.resumeForeignFormDto}">
+                            	<input type="hidden" id="foreign-id" th:field="*{resumeForeignFormDto[__${iterStat.index}__].id}"/>
+                                <div class="foreign-first-column-div-block">
+                                    <div class="foreign-name-div-block">
+                                        <div class="foreign-name-text-block">국가</div>
+                                    </div>
+                                    <div class="foreign-name-input-div-block"></div>
+                                    <div class="foreign-duration-div-block">
+                                        <div class="foreign-duration-text-block">기간</div>
+                                    </div>
+                                    <div class="foreign-duration-input-div-block"></div>
+                                </div>
+                                <div class="foreign-second-column-div-block">
+                                    <div class="foreign-agency-div-block">
+                                        <div class="foreign-agency-text-block">기관</div>
+                                    </div>
+                                    <div class="foreign-agency-input-div-block"></div>
+                                </div>
+                                <div class="foreign-third-column-div-block">
+                                    <div class="foreign-history-div-block">
+                                        <div class="foreign-history-text-block">내용</div>
+                                    </div>
+                                    <div class="foreign-history-input-div-block"></div>
+                                </div>
+                            </div>
+                            </div>
+                                        
+                            <div class="list-headinig">관련활동 및 사회경험</div>
+                            <div>
+                            <div class="activity-detail-div-block" th:each="resumeActivityFormDto, iterStat : ${resumeCombinedFormDto.resumeActivityFormDto}">
+                            	<input type="hidden" id="activity-id" th:field="*{resumeActivityFormDto[__${iterStat.index}__].id}"/>
+                                <div class="activity-first-column-div-block">
+                                    <div class="activity-name-div-block">
+                                        <div class="activity-name-text-block">활동명</div>
+                                    </div> 
+                                    <div class="activity-name-input-div-block"></div>
+                                    <div class="activity-duration-div-block">
+                                        <div class="activity-duration-text-block">활동기간</div>
+                                    </div>
+                                    <div class="activity-duration-input-div-block"></div>
+                                </div>
+                                <div class="foreign-second-column-div-block">
+                                    <div class="activity-agency-div-block">
+                                        <div class="activity-agency-text-block">기관/장소</div>
+                                    </div>
+                                    <div class="activity-agency-input-div-block"></div>
+                                </div>
+                                <div class="foreign-third-column-div-block">
+                                    <div class="activity-history-div-block">
+                                        <div class="activity-history-text-block">내용</div>
+                                    </div>
+                                    <div class="activity-history-input-div-block"></div>
+                                </div>
+                            </div>
+                            </div>
+                                        
+                            <div class="list-headinig">교육</div>
+                            <div>
+                            <div class="edu-detail-div-block" th:each="resumeEducationFormDto, iterStat : ${resumeCombinedFormDto.resumeEducationFormDto}">
+                            	<input type="hidden" id="edu-id" th:field="*{resumeEducationFormDto[__${iterStat.index}__].id}"/>
+                                <div class="activity-first-column-div-block">
+                                    <div class="activity-name-div-block">
+                                        <div class="edu-name-text-block">교육명</div>
+                                    </div>
+                                    <div class="edu-name-input-div-block"></div>
+                                    <div class="edu-duration-div-block">
+                                        <div class="edu-duration-text-block">교육기간</div>
+                                    </div>
+                                    <div class="edu-duration-input-div-block"></div>
+                                </div>
+                                <div class="foreign-second-column-div-block">
+                                    <div class="edu-agency-div-block">
+                                        <div class="edu-agency-text-block">교육기관</div>
+                                    </div>
+                                    <div class="edu-agency-input-div-block"></div>
+                                </div>
+                                <div class="foreign-third-column-div-block">
+                                    <div class="edu-history-div-block">
+                                        <div class="activity-history-text-block">내용</div>
+                                    </div>
+                                    <div class="edu-history-input-div-block"></div>
+                                </div>
+                            </div>
+                            </div>
+                                        
+                            <div class="list-headinig">취업우대사항</div>
+                            <div>
+                            <div class="preferent-detail-div-block" th:each="resumePreferentFormDto, iterStat : ${resumeCombinedFormDto.resumePreferentFormDto}">
+                            	<input type="hidden" id="preferent" th:field="*{resumePreferentFormDto[__${iterStat.index}__].id}"/>
+                                <div class="preferent-first-column-div-block">
+                                    <div class="veterans-name-div-block">
+                                        <div class="veterans-name-text-block">보훈사항</div>
+                                    </div>
+                                    <div class="veterans-name-input-div-block"></div>
+                                </div>
+                                <div class="preferent-second-column-div-block">
+                                    <div class="obstacle-div-block">
+                                        <div class="obstacle-text-block">장애여부</div>
+                                    </div>
+                                    <div class="obstacle-input-div-block"></div>
+                                    <div class="obstacle-grade-div-block">
+                                        <div class="obstacle-grade-text-block">장애등급</div>
+                                    </div>
+                                    <div class="obstacle-grade-input-div-block"></div>
+                                </div>
+                                <div class="preferent-third-column-div-block">
+                                    <div class="military-div-block">
+                                        <div class="military-text-block">병역구분</div>
+                                    </div>
+                                    <div class="military-input-div-block"></div>
+                                    <div class="military-duration-div-block">
+                                        <div class="military-duration-text-block">복무기간</div>
+                                    </div>
+                                    <div class="military-duration-input-div-block"></div>
+                                </div>
+                                <div class="preferent-fourth-column-div-block">
+                                    <div class="bymilitary-div-block">
+                                        <div class="bymilitary-text-block">군별</div>
+                                    </div>
+                                    <div class="bymilitary-input-div-block"></div>
+                                    <div class="military-classes-div-block">
+                                        <div class="military-classes-text-block">계급</div>
+                                    </div>
+                                    <div class="military-clasees-input-div-block"></div>
+                                </div>
+                            </div>
+                            </div>
+                         
+                                        
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+</html>

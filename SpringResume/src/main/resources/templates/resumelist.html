@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html 	xmlns:th="http://www.thymeleaf.org"		
+        xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+        layout:decorate="~{layouts/layout}">
+
+<th:block layout:fragment="script">
+	<script th:inline="javascript">
+		
+	
+	</script>
+
+</th:block>
+
+<head>
+<div layout:fragment="head">
+    <meta charset="utf-8" />
+</div>
+</head>
+
+<div layout:fragment="content" id="content-container">
+<body class="body">
+	<div id="features" class="main-page-section"></div>
+    <div class="resume-list-container">
+        <div class="resume-list-heading-div-block">
+            <div class="resume-list-heading">이력서 관리</div>
+            <a th:href="@{/resumecreate/0}" class="resume-create-button w-button">이력서 작성</a>
+        </div>
+        <div class="resume-list-show-div-block">
+            <div th:each="resume : ${resumeList}" class="resume-list-foreach-div-block">
+                <div class="div-block-25">
+                    <a th:href="@{/resumeview/{resumeId}(resumeId=${resume.id})}" class="resume-list-name" th:text="${resume.resumeName}">첫 번째 이력서</a>
+                    <div class="resume-list-date" th:text="${#temporals.format(resume.regTime, 'YYYY-MM-dd')}">2023-11-23</div>
+                </div><a href="#" class="pdf-trans-button w-button">PDF 변환</a><a th:href="@{/resumecreate/{resumeId}(resumeId=${resume.id})}"
+                    class="resume-list-update-button w-button">수정</a><a th:href="@{/resumedelete/{resumeId}(resumeId=${resume.id})}"
+                    class="resume-list-delete-button w-button">삭제</a>
+            </div>
+        </div>
+    </div>
+</body>
+</div>
+
+</html>
