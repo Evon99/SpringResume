@@ -106,6 +106,9 @@ public class HomeController {
 		System.out.println("postMapping");
 		
 		if(bindingResult.hasErrors()) { 
+			model.addAttribute("memberLoginId", user.getLoginId());
+	        model.addAttribute("memberName", user.getName());
+	        model.addAttribute("memberPicture", user.getPictureUrl());
             return "createMember";
         }
 		

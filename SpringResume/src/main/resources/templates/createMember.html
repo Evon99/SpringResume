@@ -122,7 +122,7 @@
                     <form id="email-form" name="email-form"  
                         method="post" class="create-member-form"
                         enctype="multipart/form-data" th:object="${memberDetailDto}">
-                        <h2 class="create-member-heading">Setting Profile</h2>
+                        <h2 class="create-member-heading">프로필 세팅</h2>
                         
                         <img th:if="${memberPicture != null}" id="profile" th:src="${memberPicture}" alt="Select picture" class="create-member-image" th:onclick="fileInput.click()" th:data-default-src="${memberPicture}" th:onerror="this.onerror=null; this.src=memberPicture;"/>
 						<img th:unless="${memberPicture != null}" id="profile" th:src="@{/static/images/profile_image.svg}" data-default-src="@{/static/images/profile_image.svg}"  alt="Select picture" class="create-member-image" th:onclick="fileInput.click()" />
@@ -136,10 +136,10 @@
 					    
 					    </script>
                             <label for="name"
-                            class="create-member-nickname-field-label">Enter your NickName</label><input type="text" th:field="*{nickname}" class="create-member-nickname-input w-input"
+                            class="create-member-nickname-field-label">닉네임을 입력해주세요</label><input type="text" th:field="*{nickname}" class="create-member-nickname-input w-input"
                             maxlength="256" name="nickName" th:value="${memberName}" id="nickname" />
                             <div th:if="${#fields.hasErrors('nickname')}" th:errors="*{nickname}" class="create-member-nickname-error-text">InCorrect Data</div>
-                            <input type="submit" th:formaction="@{/private/profileSetting}" value="Submit" class="create-member-submit-button w-button" />
+                            <input type="submit" th:formaction="@{/private/profileSetting}" value="등록" class="create-member-submit-button w-button" />
                     </form>
                 </div>
             </div>

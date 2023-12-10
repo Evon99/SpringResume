@@ -17,8 +17,8 @@
 </div>
 </head>
 
-<div layout:fragment="content" id="content-container">
 <body class="body">
+<div layout:fragment="content" id="content-container">
 	<div id="features" class="main-page-section"></div>
     <div class="resume-list-container">
         <div class="resume-list-heading-div-block">
@@ -30,13 +30,13 @@
                 <div class="div-block-25">
                     <a th:href="@{/resumeview/{resumeId}(resumeId=${resume.id})}" class="resume-list-name" th:text="${resume.resumeName}">첫 번째 이력서</a>
                     <div class="resume-list-date" th:text="${#temporals.format(resume.regTime, 'YYYY-MM-dd')}">2023-11-23</div>
-                </div><a href="#" class="pdf-trans-button w-button">PDF 변환</a><a th:href="@{/resumecreate/{resumeId}(resumeId=${resume.id})}"
+                </div><a th:href="@{/resumecreate/{resumeId}(resumeId=${resume.id})}"
                     class="resume-list-update-button w-button">수정</a><a th:href="@{/resumedelete/{resumeId}(resumeId=${resume.id})}"
                     class="resume-list-delete-button w-button">삭제</a>
             </div>
         </div>
     </div>
-</body>
 </div>
+</body>
 
 </html>

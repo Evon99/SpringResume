@@ -16,13 +16,13 @@ import lombok.Getter;
 import lombok.Setter;
 
 @Entity
-@Table(name = "request_comment")
+@Table(name = "resume_comment")
 @Getter
 @Setter
-public class RequestComment extends BaseCommentEntity {
+public class ResumeComment extends BaseCommentEntity {
 	
 	@Id
-	@Column(name = "request_comment_id")
+	@Column(name = "resume_comment_id")
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	private Long id;
 	
@@ -31,8 +31,8 @@ public class RequestComment extends BaseCommentEntity {
 	private Member member;
 	
 	@ManyToOne
-	@JoinColumn(name = "request_post_id")
-	private RequestPost requestPost;
+	@JoinColumn(name = "resume_post_id")
+	private ResumePost resumePost;
 
 	@OneToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "member_id", referencedColumnName = "member_id", insertable = false, updatable = false)
@@ -45,7 +45,7 @@ public class RequestComment extends BaseCommentEntity {
     private String uploaderImg;
 	
 	public void setUploaderNickname() {
-		if(member.getMemberDetail() != null) {
+		if(!member.getMemberDetail().getPictureUrl().isEmpty()) {
 			this.uploaderNickname = member.getMemberDetail().getNickname();
 		} else if (member != null) {
             this.uploaderNickname = member.getName();
@@ -53,7 +53,7 @@ public class RequestComment extends BaseCommentEntity {
 	}
 	
 	public void setUploaderImg() {
-		if(member.getMemberDetail() != null) {
+		if (!member.getMemberDetail().getPictureUrl().isEmpty()) {
 			this.uploaderImg = member.getMemberDetail().getPictureUrl();
 		} else if (member != null) {
             this.uploaderImg = member.getPictureUrl();

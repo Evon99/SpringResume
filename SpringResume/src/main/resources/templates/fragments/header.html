@@ -55,7 +55,7 @@
                 <div class="logo-text">FullSpec</div>
             </a>
            	<nav role="navigation" class="nav-menu w-nav-menu">
-            		<a onclick="CommunityLoad(0, '')" class="nav-link w-nav-link">커뮤니티</a>
+            		<a th:href="@{/resumenoticeboard/0}" class="nav-link w-nav-link">커뮤니티</a>
             		<a th:href="@{/resumelist}" class="nav-link w-nav-link" th:if="${loginNickname != null}" sec:authorize="isAuthenticated()">이력서</a>
            			<a data-toggle="modal" href="#myModal"  id="openModalBtn" class="nav-link w-nav-link"  th:if="${loginNickname == null}">회원가입</a>
             		<a data-toggle="modal" href="#myModal"  id="openModalBtn2" class="nav-link w-nav-link"  th:if="${loginNickname == null}">로그인</a>

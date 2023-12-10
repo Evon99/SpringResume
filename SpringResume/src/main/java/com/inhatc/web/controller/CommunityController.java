@@ -1,11 +1,12 @@
 package com.inhatc.web.controller;
 
 import java.io.IOException;
-import java.util.List;
 import java.util.Optional;
 
 import javax.servlet.http.HttpSession;
+import javax.validation.Valid;
 
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -13,94 +14,45 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
-import org.thymeleaf.context.Context;
-import org.thymeleaf.spring5.SpringTemplateEngine;
 
 import com.inhatc.web.config.auth.LoginUser;
-import com.inhatc.web.dto.ResumeCombinedFormDto;
-import com.inhatc.web.dto.ResumePreferentFormDto;
-import com.inhatc.web.dto.ResumeUniversityFormDto;
+import com.inhatc.web.dto.ResumePostCommentDto;
+import com.inhatc.web.dto.ResumePostSearchDto;
+import com.inhatc.web.dto.ResumePostWriteDto;
 import com.inhatc.web.dto.SessionUser;
 import com.inhatc.web.entity.Member;
 import com.inhatc.web.entity.MemberDetail;
-import com.inhatc.web.entity.Resume;
+import com.inhatc.web.entity.ResumeComment;
+import com.inhatc.web.entity.ResumePost;
 import com.inhatc.web.repository.MemberDetailRepository;
 import com.inhatc.web.repository.MemberRepository;
-import com.inhatc.web.service.MemberDetailService;
-import com.inhatc.web.service.PdfService;
-import com.inhatc.web.service.ResumeService;
-import com.lowagie.text.DocumentException;
+import com.inhatc.web.service.PostService;
 
 import lombok.RequiredArgsConstructor;
 
 @Controller
 @RequiredArgsConstructor
-public class ResumeController {
-
-	private final HttpSession httpSession;
-
-	private final MemberDetailService MemberDetailService;
+public class CommunityController {
 
 	private final MemberRepository memberRepository;
-
+	
 	private final MemberDetailRepository memberDetailRepository;
 	
-	private final ResumeService resumeService;
+	private final PostService postService;
 	
-	private final SpringTemplateEngine templateEngine;
-
-	@GetMapping("/resumelist")
-	public String resumelist(Model model, @LoginUser SessionUser user, HttpSession session) {
-
-		if (user != null) {
-	        Optional<Member> optionalMember = memberRepository.findByLoginId(user.getLoginId());
-
-	        if (optionalMember.isPresent()) {
-	        	Member loginMember = optionalMember.get();
-	            MemberDetail loginMemberDetail = memberDetailRepository.findByMember_Id(loginMember.getId());
-	            
-	            
-	            // Check if memberDetail is null
-	            if (loginMemberDetail == null || loginMemberDetail.getNickname() == null) {
-	                // Clear the session
-	                session.invalidate();
-	                // Redirect to the home page
-	                return "redirect:/";
-	            }
-	            
-	            model.addAttribute("session", user);
-	            model.addAttribute("loginNickname", loginMemberDetail.getNickname());
-
-//	            System.out.println("멤버디테일:" + memberDetail.getPictureUrl());
-
-	         // 로그인유저 프로필 이미지 가져오기
-	            if (loginMemberDetail.getPictureUrl().isEmpty()) {
-	                model.addAttribute("loginPictureUrl", loginMember.getPictureUrl());
-//	                System.out.println("url: " + member.getPictureUrl());
-	            } else {
-	                model.addAttribute("loginPictureUrl", loginMemberDetail.getPictureUrl());
-	            }
-	            
-	            // 사용자가 작성한 이력서 리스트 가져오기 
-	            List<Resume> resumeList = resumeService.getResumeList(loginMember.getId());
-	            
-	            model.addAttribute("resumeList", resumeList);
-	           
-	        } else {
-	            // Optional이 비어 있다면 처리할 로직 추가
-	        }
-	    }
-		return "resumelist";
-	}
-
-	@GetMapping("/resumecreate/{resumeId}")
-	public String resumeCreate(@PathVariable Long resumeId, Model model, @LoginUser SessionUser user, HttpSession session) {
+	@GetMapping("/resumenoticeboard/{page}")
+	public String requestNoticeBoard(@PathVariable int page, Model model, @LoginUser SessionUser user, HttpSession session) {
 		
+		Page<ResumePost> paging = postService.resumePostPaging(page, "", "");
+
+		model.addAttribute("paging", paging);
+		model.addAttribute("resumePostSearchDto", new ResumePostSearchDto());
 		if (user != null) {
 	        Optional<Member> optionalMember = memberRepository.findByLoginId(user.getLoginId());
 
 	        if (optionalMember.isPresent()) {
-	        	Member loginMember = optionalMember.get();
+	        	// 로그인 유저 정보
+	            Member loginMember = optionalMember.get();
 	            MemberDetail loginMemberDetail = memberDetailRepository.findByMember_Id(loginMember.getId());
 	            
 	            
@@ -111,15 +63,11 @@ public class ResumeController {
 	                // Redirect to the home page
 	                return "redirect:/";
 	            }
-	            
+
 	            model.addAttribute("session", user);
 	            model.addAttribute("loginNickname", loginMemberDetail.getNickname());
+	            model.addAttribute("loginMemberId", loginMember.getId());
 	            
-	            ResumeCombinedFormDto resumeCombinedFormDto = resumeService.createCombinedFormDto(resumeId);
-	            
-	            model.addAttribute("resumeCombinedFormDto", resumeCombinedFormDto);
-//	            System.out.println("멤버디테일:" + memberDetail.getPictureUrl());
-
 	         // 로그인유저 프로필 이미지 가져오기
 	            if (loginMemberDetail.getPictureUrl().isEmpty()) {
 	                model.addAttribute("loginPictureUrl", loginMember.getPictureUrl());
@@ -132,58 +80,120 @@ public class ResumeController {
 	            // Optional이 비어 있다면 처리할 로직 추가
 	        }
 	    }
-		
-		return "resumecreate";
+		return "resumenoticeboard";
 	}
 	
-	@PostMapping("/resumecreate")
-	public String resumeNew(ResumeCombinedFormDto resumeCombinedFormDto, @RequestParam("resumeImgFile")MultipartFile resumeImgFile, Model model, @LoginUser SessionUser user, HttpSession session) {
+	@PostMapping("/resumenoticeboard/{page}")
+	public String requestSearchNoticeBoard(@PathVariable int page, @Valid ResumePostSearchDto resumePostSearchDto, Model model, @LoginUser SessionUser user, HttpSession session) {
 		
-		System.out.println("resumeCombinedFormDto: " + resumeCombinedFormDto.getResumeFormDto().getMemberName());
-		List<ResumeUniversityFormDto> universityFormDtoList = resumeCombinedFormDto.getResumeUniversityFormDto();
-		List<ResumePreferentFormDto> resumePreferentFormDtoList = resumeCombinedFormDto.getResumePreferentFormDto();
+		Page<ResumePost> paging = postService.resumePostPaging(page, resumePostSearchDto.getFilter(), resumePostSearchDto.getKeyword());
+
+		model.addAttribute("paging", paging);
+		model.addAttribute("resumePostSearchDto", new ResumePostSearchDto());
 		
-		// 이제 universityFormDtoList를 사용할 수 있음
-//		for (ResumeUniversityFormDto universityFormDto : universityFormDtoList) {
-//		    // ResumeUniversityFormDto의 각 요소에 접근
-//		    System.out.println("대학교 이름:" + universityFormDto.getUniName());
-//		    System.out.println("대학교 토탈 학점:" + universityFormDto.getUniTotalGrade());
-//		    System.out.println("대학교 총 학점:" + universityFormDto.getUniMaxGrade());
-//		    System.out.println("대학교 시작 연도:" + universityFormDto.getUniDurationStartYear());
-//		    System.out.println("대학교 시작 월: " + universityFormDto.getUniDurationStartMonth());
-//		    System.out.println("대학교 끝 연도:" + universityFormDto.getUniDurationEndYear());
-//		    System.out.println("대학교 끝 월:" + universityFormDto.getUniDurationEndMonth());
-//		    System.out.println("대학교 졸업 구분:" + universityFormDto.getUniGraduateDivison());
-//		    System.out.println("대학교 전곰명:" + universityFormDto.getUniMajor());
-//		    System.out.println("대학교 분류:" + universityFormDto.getUniDivision());
-//		}
+		if (user != null) {
+	        Optional<Member> optionalMember = memberRepository.findByLoginId(user.getLoginId());
+
+	        if (optionalMember.isPresent()) {
+	        	// 로그인 유저 정보
+	            Member loginMember = optionalMember.get();
+	            MemberDetail loginMemberDetail = memberDetailRepository.findByMember_Id(loginMember.getId());
+	            
+	            
+	            // Check if memberDetail is null
+	            if (loginMemberDetail == null || loginMemberDetail.getNickname() == null) {
+	                // Clear the session
+	                session.invalidate();
+	                // Redirect to the home page
+	                return "redirect:/";
+	            }
+
+	            model.addAttribute("session", user);
+	            model.addAttribute("loginNickname", loginMemberDetail.getNickname());
+	            model.addAttribute("loginMemberId", loginMember.getId());
+	            
+	         // 로그인유저 프로필 이미지 가져오기
+	            if (loginMemberDetail.getPictureUrl().isEmpty()) {
+	                model.addAttribute("loginPictureUrl", loginMember.getPictureUrl());
+//	                System.out.println("url: " + member.getPictureUrl());
+	            } else {
+	                model.addAttribute("loginPictureUrl", loginMemberDetail.getPictureUrl());
+	            }
+	            
+	        } else {
+	            // Optional이 비어 있다면 처리할 로직 추가
+	        }
+	    }
+		return "resumenoticeboard";
+	}
+	
+	@PostMapping("/requestnoticeboard")
+	public String requestSearchNoticeBoard(@RequestParam(value="page", defaultValue="0") int page, @RequestParam("keyword") String keyword, @RequestParam("filter") String filter, Model model, @LoginUser SessionUser user, HttpSession session) {
 		
-//		for(ResumePreferentFormDto resumePreferentFormDto : resumePreferentFormDtoList) {
-//			System.out.println("보훈사항:" + resumePreferentFormDto.getVeteransDivison());
-//			System.out.println("군별:" + resumePreferentFormDto.getByMilitaryDuration());
-//			System.out.println("장애여부:" + resumePreferentFormDto.getObstacleDivsion());
-//			System.out.println("군필여부:" + resumePreferentFormDto.getMilitaryDivison());
-//		}
+//		Page<RequestPost> paging = postService.requestPostPaging(page, filter, keyword);
+//		
+//		model.addAttribute("paging", paging);
+		
+		return "requestnoticeboard";
+	}
+	
+	@GetMapping("/private/resumepostwrite")
+	public String voicePostWrite(Model model, @LoginUser SessionUser user, HttpSession session) {
+		
+		if (user != null) {
+	        Optional<Member> optionalMember = memberRepository.findByLoginId(user.getLoginId());
+
+	        if (optionalMember.isPresent()) {
+	        	// 로그인 유저 정보
+	            Member loginMember = optionalMember.get();
+	            MemberDetail loginMemberDetail = memberDetailRepository.findByMember_Id(loginMember.getId());
+	            
+	            
+	            // Check if memberDetail is null
+	            if (loginMemberDetail == null || loginMemberDetail.getNickname() == null) {
+	                // Clear the session
+	                session.invalidate();
+	                // Redirect to the home page
+	                return "redirect:/";
+	            }
+
+	            model.addAttribute("session", user);
+	            model.addAttribute("loginNickname", loginMemberDetail.getNickname());
+	            model.addAttribute("loginMemberId", loginMember.getId());
+	            model.addAttribute("resumePostWriteDto", new ResumePostWriteDto());
+//	            System.out.println("멤버디테일:" + memberDetail.getPictureUrl());
+
+	         // 로그인유저 프로필 이미지 가져오기
+	            if (loginMemberDetail.getPictureUrl().isEmpty()) {
+	                model.addAttribute("loginPictureUrl", loginMember.getPictureUrl());
+//	                System.out.println("url: " + member.getPictureUrl());
+	            } else {
+	                model.addAttribute("loginPictureUrl", loginMemberDetail.getPictureUrl());
+	            }
+	            
+	        } else {
+	        	
+	        }
+	    }
+		return "resumepostwrite";
+	}
+	
+	@PostMapping("/private/resumepostwrite")
+	public String voicePostWrite(@Valid ResumePostWriteDto resumePostWriteDto, @RequestParam("resumeFileUpload") MultipartFile resumeFile, @LoginUser SessionUser user, Model model, HttpSession session) {
+		
 		try {
-			System.out.println("이력서ID:" + resumeCombinedFormDto.getResumeFormDto().getId());
-			if(resumeCombinedFormDto.getResumeFormDto().getId() == null) {
-				resumeService.createResume(resumeCombinedFormDto, resumeImgFile, user);
-			} else {
-				resumeService.updateResume(resumeCombinedFormDto, resumeImgFile, user);
-			}
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+			  postService.saveResumePost(user, resumeFile, resumePostWriteDto);
+      } catch (Exception e) {
+          model.addAttribute("errorMessage", e.getMessage());
+          return "resumepostwrite";
+      }
 		
 		if (user != null) {
 	        Optional<Member> optionalMember = memberRepository.findByLoginId(user.getLoginId());
 
 	        if (optionalMember.isPresent()) {
-	        	Member loginMember = optionalMember.get();
+	        	// 로그인 유저 정보
+	            Member loginMember = optionalMember.get();
 	            MemberDetail loginMemberDetail = memberDetailRepository.findByMember_Id(loginMember.getId());
 	            
 	            
@@ -194,10 +204,10 @@ public class ResumeController {
 	                // Redirect to the home page
 	                return "redirect:/";
 	            }
-	            
+
 	            model.addAttribute("session", user);
 	            model.addAttribute("loginNickname", loginMemberDetail.getNickname());
-
+	            model.addAttribute("loginMemberId", loginMember.getId());
 //	            System.out.println("멤버디테일:" + memberDetail.getPictureUrl());
 
 	         // 로그인유저 프로필 이미지 가져오기
@@ -208,27 +218,42 @@ public class ResumeController {
 	                model.addAttribute("loginPictureUrl", loginMemberDetail.getPictureUrl());
 	            }
 	            
-	            // 사용자가 작성한 이력서 리스트 가져오기 
-	            List<Resume> resumeList = resumeService.getResumeList(loginMember.getId());
-	            
-	            model.addAttribute("resumeList", resumeList);
-	           
 	        } else {
-	            // Optional이 비어 있다면 처리할 로직 추가
+	        	
 	        }
 	    }
 		
-		return "resumelist";
+		
+		Page<ResumePost> paging = postService.resumePostPaging(0, "", "");
+		model.addAttribute("paging", paging);
+		model.addAttribute("resumePostSearchDto", new ResumePostSearchDto());
+		
+		return "resumenoticeboard";
 	}
 	
-	@GetMapping("/resumedelete/{resumeId}")
-	public String resumedelete(@PathVariable Long resumeId, Model model, @LoginUser SessionUser user, HttpSession session) {
+	
+	@GetMapping("/resumepost/{postId}/{page}")
+	public String resumePost(@PathVariable long postId, @PathVariable int page, Model model, @LoginUser SessionUser user, HttpSession session) throws IOException {
+		
+		ResumePost resumePost = postService.getResumePost(postId);
+		
+		model.addAttribute("resumePost", resumePost);
+//		
+		Page<ResumeComment> resumeCommentList = postService.getResumeComment(postId, page);
+//		
+		model.addAttribute("comment", resumeCommentList);
+//		
+		postService.updateResumeView(postId); // 게시글 조회수 증가
+		
+		model.addAttribute("resumePostSearchDto", new ResumePostSearchDto());
+		model.addAttribute("resumePostCommentDto", new ResumePostCommentDto());
 		
 		if (user != null) {
 	        Optional<Member> optionalMember = memberRepository.findByLoginId(user.getLoginId());
 
 	        if (optionalMember.isPresent()) {
-	        	Member loginMember = optionalMember.get();
+	        	// 로그인 유저 정보
+	            Member loginMember = optionalMember.get();
 	            MemberDetail loginMemberDetail = memberDetailRepository.findByMember_Id(loginMember.getId());
 	            
 	            
@@ -239,12 +264,11 @@ public class ResumeController {
 	                // Redirect to the home page
 	                return "redirect:/";
 	            }
-	            
+
 	            model.addAttribute("session", user);
 	            model.addAttribute("loginNickname", loginMemberDetail.getNickname());
-
-//	            System.out.println("멤버디테일:" + memberDetail.getPictureUrl());
-
+	            model.addAttribute("loginMemberId", loginMember.getId());
+	            
 	         // 로그인유저 프로필 이미지 가져오기
 	            if (loginMemberDetail.getPictureUrl().isEmpty()) {
 	                model.addAttribute("loginPictureUrl", loginMember.getPictureUrl());
@@ -252,27 +276,30 @@ public class ResumeController {
 	            } else {
 	                model.addAttribute("loginPictureUrl", loginMemberDetail.getPictureUrl());
 	            }
-	            resumeService.deleteResume(resumeId);
 	            
-	            // 사용자가 작성한 이력서 리스트 가져오기 
-	            List<Resume> resumeList = resumeService.getResumeList(loginMember.getId());
-	            
-	            model.addAttribute("resumeList", resumeList);
-	           
 	        } else {
 	            // Optional이 비어 있다면 처리할 로직 추가
 	        }
 	    }
-		return "resumelist";
+		return "resumepost";
 	}
 	
-	@GetMapping("/resumeview/{resumeId}")
-	public String resumeView(@PathVariable Long resumeId, Model model, @LoginUser SessionUser user, HttpSession session) {
+	@PostMapping("/private/resumecommentwrite/{postId}")
+	public String requestCommentWrite(@PathVariable long postId, @Valid ResumePostCommentDto resumePostCommentDto, @LoginUser SessionUser user, Model model, HttpSession session) throws IOException {
+		
+		try {
+			  postService.saveRequestComment(user, resumePostCommentDto, postId);
+	      } catch (Exception e) {
+	          model.addAttribute("errorMessage", e.getMessage());
+	          return "resumepost";
+	      }
+		
 		if (user != null) {
 	        Optional<Member> optionalMember = memberRepository.findByLoginId(user.getLoginId());
 
 	        if (optionalMember.isPresent()) {
-	        	Member loginMember = optionalMember.get();
+	        	// 로그인 유저 정보
+	            Member loginMember = optionalMember.get();
 	            MemberDetail loginMemberDetail = memberDetailRepository.findByMember_Id(loginMember.getId());
 	            
 	            
@@ -283,10 +310,10 @@ public class ResumeController {
 	                // Redirect to the home page
 	                return "redirect:/";
 	            }
-	            
+
 	            model.addAttribute("session", user);
 	            model.addAttribute("loginNickname", loginMemberDetail.getNickname());
-
+	            model.addAttribute("loginMemberId", loginMember.getId());
 //	            System.out.println("멤버디테일:" + memberDetail.getPictureUrl());
 
 	         // 로그인유저 프로필 이미지 가져오기
@@ -296,42 +323,26 @@ public class ResumeController {
 	            } else {
 	                model.addAttribute("loginPictureUrl", loginMemberDetail.getPictureUrl());
 	            }
-	            // 사용자가 작성한 이력서 리스트 가져오기 
-	            List<Resume> resumeList = resumeService.getResumeList(loginMember.getId());
 	            
-	            model.addAttribute("resumeList", resumeList);
-	           
-	            ResumeCombinedFormDto resumeCombinedFormDto = resumeService.createCombinedFormDto(resumeId);
-	    		
-	    		model.addAttribute("resumeCombinedFormDto", resumeCombinedFormDto);
 	        } else {
 	            // Optional이 비어 있다면 처리할 로직 추가
 	        }
 	    }
 		
+		ResumePost resumePost = postService.getResumePost(postId);
 		
-
-		return "resumeviewtest";
+		model.addAttribute("resumePost", resumePost);
+		
+		Page<ResumeComment> resumeCommentList = postService.getResumeComment(postId, 0);
+		
+		model.addAttribute("comment", resumeCommentList);
+		
+		model.addAttribute("resumePostSearchDto", new ResumePostSearchDto());
+		model.addAttribute("resumePostCommentDto", new ResumePostCommentDto());
+		return "resumepost";
 	}
 	
-	@GetMapping("/convertpdf/{resumeId}")
-	public String convertPdf(@PathVariable Long resumeId, Model model) throws IOException, DocumentException {
-		 ResumeCombinedFormDto resumeCombinedFormDto = resumeService.createCombinedFormDto(resumeId);
- 		
- 		 model.addAttribute("resumeCombinedFormDto", resumeCombinedFormDto);
- 		 
- 		// Thymeleaf 템플릿 렌더링
-         String htmlContent = renderThymeleafTemplate("resumepdf", model);
-
-         // PDF 생성
-         PdfService.generatePdf(htmlContent, "src/main/resources/static/pdf/myfile.pdf");
- 		 
- 		 return "resumepdf";
-	}
 	
-	private String renderThymeleafTemplate(String templateName, Model model) {
-        Context context = new Context();
-        context.setVariables(model.asMap());
-        return templateEngine.process(templateName, context);
-    }
+	
+	
 }
