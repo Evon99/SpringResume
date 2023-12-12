@@ -274,6 +274,7 @@ public class ResumeService {
 		List<ResumeGraduateSchoolFormDto> resumeGraduateSchoolFormDtoList = resumeCombinedFormDto.getResumeGraduateSchoolFormDto();
 		
 		for(ResumeGraduateSchoolFormDto resumeGraduateSchoolFormDto : resumeGraduateSchoolFormDtoList) {
+			System.out.println("대학원 이름:" + resumeGraduateSchoolFormDto.getGradSchoolName());
 			if(resumeGraduateSchoolFormDto.getId() == null) {
 				ResumeGraduateSchool resumeGraduateSchool = resumeGraduateSchoolFormDto.createResumeGraduateSchool();
 				resumeGraduateSchool.setMember(member);

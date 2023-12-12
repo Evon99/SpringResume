@@ -17,10 +17,10 @@
 	      alert(errorMessage);
 	    }
 	    
-	    voiceFileEvent();
+	    resumeFileEvent();
 	  });
   
-  function voiceFileEvent() {
+  function resumeFileEvent() {
 	    $(".resume-file-input").on("change", function () {
 	        
 	        var fileName = $(this).val().split("\\").pop(); // 이미지 파일명

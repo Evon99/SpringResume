@@ -699,7 +699,7 @@
                                     <div class="language-acq-div-block">
                                         <div class="languag-acq-text-block">취득일</div>
                                     </div>
-                                    <div class="language-acq-input-div-block"><select id="field-2" name="language-acq-year" th:field="*{resumeLanguageFormDto[__${iterStat.index}__].languageAcqYear}"
+                                    <div class="language-acq-input-div-block"><select id="language-acq-year" name="language-acq-year" th:field="*{resumeLanguageFormDto[__${iterStat.index}__].languageAcqYear}"
                                             class="language-year-select-field w-select">
                                             <option value="">-</option>
                                             <option th:each="year : ${#numbers.sequence(2026, 1973)}" th:value="${year}" th:text="${year}"></option>
