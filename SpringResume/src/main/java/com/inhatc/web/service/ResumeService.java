@@ -241,10 +241,12 @@ public class ResumeService {
         if(!StringUtils.isEmpty(resumeOriPictureName)){
             resumePictureName = fileService.uploadFile(resumeImgLocation, resumeOriPictureName, resumeImgFile.getBytes());
             resumePictureUrl = "/images/resume/" + resumePictureName; // 파일 저장 장소
+
+	    resume.updateResumeImg(resumePictureName, resumeOriPictureName, resumePictureUrl);
+            resume.update(resumeCombinedFormDto);
         }
         
-        resume.updateResumeImg(resumePictureName, resumeOriPictureName, resumePictureUrl);
-		resume.update(resumeCombinedFormDto);
+        
 		
 		System.out.println("고등학교 수정 시작");
 		ResumeHighSchool resumeHighSchool = resumeHighSchoolRepository.findResumeHighSchoolById(resumeCombinedFormDto.getResumeHighSchoolFormDto().getId());
